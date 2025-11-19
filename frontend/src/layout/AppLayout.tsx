@@ -14,14 +14,16 @@ const LayoutContent: React.FC = () => {
         <Backdrop />
       </div>
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
+        className={`relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto ${
           isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
         <AppHeader />
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-          <Outlet />
-        </div>
+        <main className="flex-1 p-4 md:p-6 bg-gray-100 dark:bg-gray-900 min-h-[calc(100vh-64px)] overflow-auto transition-colors duration-300 text-gray-900 dark:text-gray-100">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -29,10 +29,8 @@ const navItems: NavItem[] = [
       { name: "Kategori", path: "/category", pro: false },
       { name: "Jenis", path: "/type", pro: false },
       { name: "Merk", path: "/brand", pro: false },
-      { name: "Keranjang", path: "/cart", pro: false },
-      { name: "Barang Keranjang", path: "/cart-item", pro: false },
       { name: "Produk", path: "/product", pro: false },
-      { name: "Gambar Produk", path: "/product-image", pro: false },
+      { name: "Gambar Produk", path: "/image-product", pro: false },
     ],
   },
   {
@@ -69,6 +67,34 @@ const AppSidebar: React.FC = () => {
         location.pathname.startsWith("/category") ||
         location.pathname.startsWith("/edit-category") ||
         location.pathname.startsWith("/create-category")
+      );
+    }
+    if (path === "/type"){
+      return (
+        location.pathname.startsWith("/type") ||
+        location.pathname.startsWith("/edit-type") ||
+        location.pathname.startsWith("/create-type")
+      );
+    }
+    if (path === "/brand"){
+      return (
+        location.pathname.startsWith("/brand") ||
+        location.pathname.startsWith("/edit-brand") ||
+        location.pathname.startsWith("/create-brand")
+      );
+    }
+    if (path === "/product"){
+      return (
+        location.pathname.startsWith("/product") ||
+        location.pathname.startsWith("/edit-product") ||
+        location.pathname.startsWith("/create-product")
+      );
+    }
+    if (path === "/image-product"){
+      return (
+        location.pathname.startsWith("/image-product") ||
+        location.pathname.startsWith("/edit-image-product") ||
+        location.pathname.startsWith("/create-image-product")
       );
     }
 
