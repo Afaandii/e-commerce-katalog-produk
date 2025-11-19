@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
 use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
@@ -11,7 +12,12 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Categories::all();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Categories retrieved successfully',
+            'data' => $categories,
+        ], 201);
     }
 
     /**
@@ -27,7 +33,18 @@ class CategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'category_name' => 'required|string|max:120',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        Categories::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category created successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -51,7 +68,19 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'category_name' => 'required|string|max:120',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $category = Categories::findOrFail($id);
+        $category->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category updated successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -59,6 +88,12 @@ class CategoriesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Categories::findOrFail($id);
+        $category->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Category deleted successfully',
+        ], 201);
     }
 }

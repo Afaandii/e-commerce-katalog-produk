@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TypeProduct;
 use Illuminate\Http\Request;
 
 class TypeProductController extends Controller
@@ -11,7 +12,12 @@ class TypeProductController extends Controller
      */
     public function index()
     {
-        //
+        $typeProduct = TypeProduct::all();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Type products retrieved successfully',
+            'data' => $typeProduct,
+        ], 201);
     }
 
     /**
@@ -27,7 +33,18 @@ class TypeProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'type_name' => 'required|string|max:150',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        TypeProduct::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Type product created successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -51,7 +68,19 @@ class TypeProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'type_name' => 'required|string|max:150',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $typeProduct = TypeProduct::findOrFail($id);
+        $typeProduct->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Type product updated successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -59,6 +88,12 @@ class TypeProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $typeProduct = TypeProduct::findOrFail($id);
+        $typeProduct->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Type product deleted successfully',
+        ], 201);
     }
 }
