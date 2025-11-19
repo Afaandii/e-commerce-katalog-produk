@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BrandProduct;
 use Illuminate\Http\Request;
 
 class BrandProductController extends Controller
@@ -11,7 +12,12 @@ class BrandProductController extends Controller
      */
     public function index()
     {
-        //
+        $brandProducts = BrandProduct::all();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Brand products retrieved successfully',
+            'data' => $brandProducts,
+        ], 201);
     }
 
     /**
@@ -27,7 +33,18 @@ class BrandProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'brand_name' => 'required|string|max:150',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        BrandProduct::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Brand product created successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -51,7 +68,19 @@ class BrandProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'brand_name' => 'required|string|max:150',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $brandProduct = BrandProduct::findOrFail($id);
+        $brandProduct->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Brand product updated successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -59,6 +88,12 @@ class BrandProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $brandProduct = BrandProduct::findOrFail($id);
+        $brandProduct->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Brand product deleted successfully',
+        ], 201);
     }
 }
