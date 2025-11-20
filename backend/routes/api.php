@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
@@ -43,4 +44,6 @@ Route::put('/v1/update-role/{id}', [RolesController::class, 'update']);
 Route::delete('/v1/delete-role/{id}', [RolesController::class, 'destroy']);
 
 // manage auth users
-// Route::get('/v1/users', [RolesController::class, 'getUsers']);
+Route::post('/v1/auth/register', [AuthenticateController::class, 'register']);
+Route::post('/v1/auth/login', [AuthenticateController::class, 'login']);
+Route::post('/v1/auth/logout', [AuthenticateController::class, 'logout'])->middleware('auth:sanctum');
