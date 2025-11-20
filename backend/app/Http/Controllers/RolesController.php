@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roles;
 use Illuminate\Http\Request;
 
 class RolesController extends Controller
@@ -11,7 +12,12 @@ class RolesController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Roles::all();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Roles retrieved successfully',
+            'data' => $roles,
+        ], 201);
     }
 
     /**
@@ -27,7 +33,18 @@ class RolesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'role_name' => 'required|string|max:100',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        Roles::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role created successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -51,7 +68,19 @@ class RolesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'role_name' => 'required|string|max:100',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $role = Roles::findOrFail($id);
+        $role->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role updated successfully',
+            'data' => $validated,
+        ], 201);
     }
 
     /**
@@ -59,6 +88,12 @@ class RolesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $role = Roles::findOrFail($id);
+        $role->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role deleted successfully',
+        ], 201);
     }
 }
