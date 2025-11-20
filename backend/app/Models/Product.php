@@ -18,7 +18,7 @@ class Product extends Model
         'product_name',
         'price',
         'stock',
-        'ratings',
+        'rating',
         'spesification_product',
         'information_product',
     ];
