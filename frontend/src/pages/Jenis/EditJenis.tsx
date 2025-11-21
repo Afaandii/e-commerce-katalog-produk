@@ -73,7 +73,6 @@ export default function EditJenis() {
 
   return (
     <>
-      {/* Header Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
           <h1 className="text-2xl font-bold text-white">Form Edit Jenis</h1>
@@ -95,7 +94,7 @@ export default function EditJenis() {
           )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
-            {/* Nama Kategori Field */}
+            {/* Nama jenis */}
             <div className="mb-4">
               <label
                 htmlFor="name"
@@ -115,7 +114,7 @@ export default function EditJenis() {
               />
             </div>
 
-            {/* description Field (Readonly) */}
+            {/* description jenis */}
             <div className="mb-6">
               <label
                 htmlFor="description"
@@ -130,7 +129,7 @@ export default function EditJenis() {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Masukan description"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 

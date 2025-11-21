@@ -11,10 +11,10 @@ type Type = {
 
 export default function Jenis() {
   const [type, setType] = useState<Type[]>([]);
-   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
- const fetchType = async () => {
+  const fetchType = async () => {
     try {
       const token = localStorage.getItem("token");
 
@@ -49,7 +49,7 @@ export default function Jenis() {
       });
 
       setType(prev => prev.filter(type => type.id !== id));
-      setSuccessMessage("Kategori berhasil dihapus.");
+      setSuccessMessage("Jenis berhasil dihapus.");
 
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {

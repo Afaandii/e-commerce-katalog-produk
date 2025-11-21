@@ -69,7 +69,7 @@ export default function CreateJenis() {
           )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
-            {/* Nama Kategori Field */}
+            {/* Nama jenis Field */}
             <div className="mb-4">
               <label
                 htmlFor="type_name"
@@ -89,7 +89,7 @@ export default function CreateJenis() {
               />
             </div>
 
-            {/* description Field */}
+            {/* description jenis */}
             <div className="mb-6">
               <label
                 htmlFor="description"
