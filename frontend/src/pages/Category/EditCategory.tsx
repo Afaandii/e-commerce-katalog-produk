@@ -1,44 +1,72 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function EditCategory() {
-  // State untuk menyimpan data form (kosong, seperti permintaan Anda)
+  const { id } = useParams(); 
+  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
-    name: "", // Kosongkan, biarkan user mengisi atau isi dari API nanti
-    slug: "", // Kosongkan, biarkan user mengisi atau isi dari API nanti
+    name: "",
+    description: "",
   });
+
+  const fetchCategory = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`http://localhost:8000/api/v1/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Cari kategori sesuai ID
+      const cat = res.data.data.find((c: any) => c.id == id);
+      if (cat) {
+        setFormData({
+          name: cat.category_name,
+          description: cat.description ?? "",
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching category:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/v1/update-categories/${id}`,
+        {
+          category_name: formData.name,
+          description: formData.description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setSuccessMessage("Kategori berhasil diperbarui.");
+      navigate("/category");
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Fungsi untuk mengenerate slug otomatis dari nama kategori (opsional)
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      name: value,
-      slug: generateSlug(value), // Update slug secara otomatis saat nama diubah
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Logika submit data ke API atau state
-    console.log("Submitting:", formData);
-    // Contoh: setelah submit, redirect atau reset form
-    // history.push("/category"); // Jika menggunakan react-router v5
-    // atau gunakan navigate dari react-router-dom v6
   };
 
   return (
@@ -52,6 +80,17 @@ export default function EditCategory() {
 
       {/* Form Card */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {successMessage && (
+            <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
+              <span>{successMessage}</span>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="ml-2 text-white hover:text-gray-200"
+              >
+                &times;
+              </button>
+            </div>
+          )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
             {/* Nama Kategori Field */}
@@ -67,30 +106,29 @@ export default function EditCategory() {
                 id="name"
                 name="name"
                 value={formData.name}
-                onChange={handleNameChange} // Gunakan fungsi khusus untuk update slug
+                onChange={handleChange}
                 placeholder="Masukan nama kategori"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
             </div>
 
-            {/* Slug Field (Readonly) */}
+            {/* Description Field */}
             <div className="mb-6">
               <label
-                htmlFor="slug"
+                htmlFor="description"
                 className="block text-sm font-medium text-white mb-1"
               >
-                Slug
+                Description
               </label>
               <input
                 type="text"
-                id="slug"
-                name="slug"
-                value={formData.slug}
-                onChange={handleChange} // Tetap bisa diubah jika diperlukan, tapi biasanya readonly
-                placeholder="Masukan slug"
-                readOnly // Tambahkan atribut ini untuk membuat input readonly
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Masukan description"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 

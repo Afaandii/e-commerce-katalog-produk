@@ -42,7 +42,7 @@ export default function App() {
             {/* Category Page */}
             <Route path="/category" element={<Category />} />
             <Route path="/create-category" element={<CreateCategory />} />
-            <Route path="/edit-category" element={<EditCategory />} />
+            <Route path="/edit-category/:id" element={<EditCategory />} />
 
             {/* Jenis Page */}
             <Route path="/type" element={<Jenis />} />

@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function CreateCategory() {
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
+    description: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,14 +15,32 @@ export default function CreateCategory() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logika submit data ke API atau state
-    console.log("Submitting:", formData);
-    // Contoh: setelah submit, redirect atau reset form
-    // setFormData({ name: "", slug: "" });
-    // history.push("/category"); // Jika menggunakan react-router v5
-    // atau gunakan navigate dari react-router-dom v6
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/create-categories",
+        {
+          category_name: formData.name,
+          description: formData.description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      setFormData({ name: "", description: "" });
+      setSuccessMessage("Kategori berhasil ditambahkan.");
+      navigate("/category");
+    } catch (error: any) {
+      console.error("Error creating category:", error);
+    }
   };
 
   return (
@@ -33,6 +54,17 @@ export default function CreateCategory() {
 
       {/* Form Card */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {successMessage && (
+            <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
+              <span>{successMessage}</span>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="ml-2 text-white hover:text-gray-200"
+              >
+                &times;
+              </button>
+            </div>
+          )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
             {/* Nama Kategori Field */}
@@ -55,21 +87,21 @@ export default function CreateCategory() {
               />
             </div>
 
-            {/* Slug Field */}
+            {/* description Field */}
             <div className="mb-6">
               <label
-                htmlFor="slug"
+                htmlFor="description"
                 className="block text-sm font-medium text-white mb-1"
               >
-                Slug
+                Description
               </label>
               <input
                 type="text"
-                id="slug"
-                name="slug"
-                value={formData.slug}
+                id="description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-                placeholder="Masukan slug"
+                placeholder="Masukan description"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />

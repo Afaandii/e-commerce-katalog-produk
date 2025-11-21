@@ -1,34 +1,59 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
-// Dummy data untuk contoh, ganti dengan data dari API atau state Anda nanti
-const dummyCategories = [
-  { id: 1, name: "Berita Terkini", slug: "berita-terkini" },
-  { id: 2, name: "Berita Trending", slug: "berita-trending" },
-  { id: 3, name: "Berita Panas", slug: "berita-panas" },
-  { id: 4, name: "Topik Panas", slug: "topik-panas" },
-  { id: 5, name: "Dalam Negeri", slug: "dalam-negeri" },
-];
+type Category = {
+  id: number;
+  category_name: string;
+  description: string | null;
+};
 
 export default function Category() {
-  const [categories, setCategories] = useState(dummyCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Simulasi pesan sukses (ganti dengan logika Anda)
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get("http://localhost:8000/api/v1/categories", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.data.status === "success") {
+        setCategories(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    // Contoh: jika ada pesan sukses dari route sebelumnya
-    // const msg = getSuccessMessageFromURL(); // Implementasi Anda
-    // if (msg) setSuccessMessage(msg);
+    fetchCategories();
   }, []);
 
-  // Fungsi untuk menghapus kategori (simulasi)
-  const handleDelete = (id: number) => {
-    if (window.confirm("Anda Yakin Mau Hapus Data?")) {
-      setCategories(categories.filter(cat => cat.id !== id));
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Anda yakin ingin menghapus kategori ini?")) return;
+
+    try {
+      await axios.delete(`http://localhost:8000/api/v1/delete-categories/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      setCategories(prev => prev.filter(cat => cat.id !== id));
       setSuccessMessage("Kategori berhasil dihapus.");
-      // Tampilkan pesan sukses selama beberapa detik
+
       setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      console.error("Delete failed:", err);
     }
   };
 
@@ -38,7 +63,7 @@ export default function Category() {
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
           <h1 className="text-2xl font-bold text-white">Manage Tabel Kategori</h1>
-          {/* Tombol Tambah */}
+
           <Link
             to="/create-category"
             className="inline-flex items-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200"
@@ -48,92 +73,78 @@ export default function Category() {
         </div>
       </section>
 
-      {/* Card Container */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-        {/* Card Header */}
         <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
           <h3 className="text-lg font-semibold text-white">DataTable Kategori</h3>
         </div>
 
-        {/* Card Body - Table */}
         <div className="p-4">
-          {/* Pesan Sukses (Alert) */}
+          {/* pesan sukses */}
           {successMessage && (
             <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
               <span>{successMessage}</span>
               <button
                 onClick={() => setSuccessMessage(null)}
-                className="ml-2 text-white hover:text-gray-200 focus:outline-none"
+                className="ml-2 text-white hover:text-gray-200"
               >
                 &times;
               </button>
             </div>
           )}
 
-          {/* Tabel */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-600">
-              <thead className="bg-gray-900">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    No
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Name Kategori
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Slug
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-600">
-                {categories.map((kategori, index) => (
-                  <tr key={kategori.id} className="hover:bg-gray-700">
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                      {kategori.name}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                      {kategori.slug}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      {/* Tombol Edit */}
-                      <Link
-                        to={`/edit-category`}
-                        className="inline-flex items-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium rounded mr-2 transition-colors duration-200"
-                      >
-                        <FaEdit className="text-lg"/>
-                      </Link>
-                      {/* Tombol Hapus */}
-                      <button
-                        onClick={() => handleDelete(kategori.id)}
-                        className="inline-flex items-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded transition-colors duration-200"
-                      >
-                        <FaTrash className="text-lg" />
-                      </button>
-                    </td>
+          {loading ? (
+            <p className="text-gray-300">Loading...</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-600">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      No
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Name Kategori
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Aksi
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody className="bg-gray-800 divide-y divide-gray-600">
+                  {categories.map((cat, index) => (
+                    <tr key={cat.id} className="hover:bg-gray-700">
+                      <td className="px-4 py-3 text-white">{index + 1}</td>
+                      <td className="px-4 py-3 text-white">{cat.category_name}</td>
+                      <td className="px-4 py-3 text-gray-300">
+                        {cat.description ?? "-"}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <Link
+                          to={`/edit-category/${cat.id}`}
+                          className="inline-flex items-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded mr-2"
+                        >
+                          <FaEdit className="text-lg" />
+                        </Link>
+
+                        <button
+                          onClick={() => handleDelete(cat.id)}
+                          className="inline-flex items-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded"
+                        >
+                          <FaTrash className="text-lg" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </>
