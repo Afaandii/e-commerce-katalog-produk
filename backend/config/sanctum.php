@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => 10080, //expiret sanctum token dalam 7 hari
 
     /*
     |--------------------------------------------------------------------------
