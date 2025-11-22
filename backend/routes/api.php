@@ -34,7 +34,9 @@ Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
 
     // manage crud api product
     Route::get('/v1/product', [ProductController::class, 'index']);
-    Route::post('/v1/create-product', [ProductController::class, 'store']);
+    Route::get('/v1/create-product', [ProductController::class, 'create']);
+    Route::post('/v1/store-product', [ProductController::class, 'store']);
+    Route::get('/v1/edit-product/{id}', [ProductController::class, 'edit']);
     Route::put('/v1/update-product/{id}', [ProductController::class, 'update']);
     Route::delete('/v1/delete-product/{id}', [ProductController::class, 'destroy']);
 

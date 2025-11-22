@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BrandProduct;
+use App\Models\Categories;
 use App\Models\Product;
+use App\Models\TypeProduct;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,7 +15,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::all();
+        $product = Product::with(['category', 'typeProduct', 'brandProduct'])->get();
         return response()->json([
             'status' => 'success',
             'message' => 'Products retrieved successfully',
@@ -25,7 +28,19 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Categories::all();
+        $types = TypeProduct::all();
+        $brands = BrandProduct::all();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data for creation retrieved successfully',
+            'data' => [
+                'categories' => $categories,
+                'types' => $types,
+                'brands' => $brands,
+            ],
+        ], 201);
     }
 
     /**
@@ -67,7 +82,22 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $categories = Categories::all();
+        $types = TypeProduct::all();
+        $brands = BrandProduct::all();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product and options retrieved successfully',
+            'data' => [
+                'product' => $product,
+                'categories' => $categories,
+                'types' => $types,
+                'brands' => $brands,
+            ],
+        ], 200);
     }
 
     /**

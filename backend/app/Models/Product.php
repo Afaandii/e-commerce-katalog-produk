@@ -22,4 +22,19 @@ class Product extends Model
         'spesification_product',
         'information_product',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Categories::class, 'category_id', 'id');
+    }
+
+    public function typeProduct()
+    {
+        return $this->belongsTo(TypeProduct::class, 'type_id', 'id');
+    }
+
+    public function brandProduct()
+    {
+        return $this->belongsTo(BrandProduct::class, 'brand_id', 'id');
+    }
 }
