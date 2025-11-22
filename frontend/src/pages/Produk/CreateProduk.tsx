@@ -1,17 +1,15 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Select from "../../components/form/Select";
 import TextArea from "../../components/form/input/TextArea";
+import axios from "axios";
 
 export default function CreateProduct() {
-   const optionsCategory = [
-    { value: "elektronik", label: "Elektronik" },
-    { value: "dapur", label: "Dapur" },
-    { value: "ruang tamu", label: "Ruang Tamu" },
-  ];
-  const handleSelectChangeCategory = (value: string | number) => {
-    console.log("Selected value:", value);
-  };
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [jenis, setJenis] = useState<{ value: string; label: string }[]>([]);
+  const [brands, setBrands] = useState<{ value: string; label: string }[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     category_id: "",
@@ -25,19 +23,118 @@ export default function CreateProduct() {
     information_product: "",
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/create-product", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Data fetched for form:", response.data);
+        if (response.data.status === "success") {
+          const data = response.data.data;
+
+          // Format Category
+          const formattedCategories = data.categories.map((cat: any) => ({
+            value: cat.id.toString(),
+            label: cat.category_name || "N/A",
+          }));
+
+          // Format Jenis
+          const formattedJenis = data.types.map((jenis: any) => ({
+            value: jenis.id.toString(),
+            label: jenis.type_name || "N/A",
+          }));
+
+          // Format Brand
+          const formattedBrands = data.brands.map((brand: any) => ({
+            value: brand.id.toString(),
+            label: brand.brand_name || "N/A",
+          }));
+
+          setCategories(formattedCategories);
+          setJenis(formattedJenis);
+          setBrands(formattedBrands);
+        } else {
+          console.error("Gagal memuat data. Silakan coba lagi.");
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Handler untuk perubahan input biasa
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handler untuk perubahan select
+  const handleSelectChange = (name: string) => (value: string | number) => {
+    setFormData((prev) => ({ ...prev, [name]: value.toString() }));
+  };
+
+  // Handler untuk submit form
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logika submit data ke API atau state
-    console.log("Submitting:", formData);
-    // Contoh: setelah submit, redirect atau reset form
-    // setFormData({ name: "", slug: "" });
-    // history.push("/category"); // Jika menggunakan react-router v5
-    // atau gunakan navigate dari react-router-dom v6
+    if (!formData.category_id || !formData.jenis_id || !formData.brand_id || !formData.product_name || !formData.price || !formData.stock) {
+      alert("Harap lengkapi semua field wajib.");
+      return;
+    }
+    
+    const token = localStorage.getItem("token");
+    try {
+      const payload = {
+        category_id: formData.category_id,
+        type_id: formData.jenis_id, 
+        brand_id: formData.brand_id,
+        product_name: formData.product_name,
+        price: parseInt(formData.price), 
+        stock: parseInt(formData.stock),
+        rating: parseFloat(formData.ratings) || 0,
+        spesification_product: formData.spesification_product,
+        information_product: formData.information_product,
+      };
+
+      const response = await axios.post("http://localhost:8000/api/v1/store-product", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.status === "success") {
+        setFormData({
+          category_id: "",
+          jenis_id: "",
+          brand_id: "",
+          product_name: "",
+          price: "",
+          stock: "",
+          ratings: "",
+          spesification_product: "",
+          information_product: "",
+        });
+
+        navigate("/product");
+        setMessage("Produk berhasil ditambahkan.");
+      } else {
+        setMessage("Gagal menambahkan produk.");
+      }
+    } catch (err: any) {
+      console.error("Error submitting data:", err);
+      let errorMessage = "Terjadi kesalahan saat menyimpan data.";
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage = err.response.data.message;
+      }
+      alert(errorMessage);
+    }
   };
 
   return (
@@ -48,6 +145,18 @@ export default function CreateProduct() {
           <h1 className="text-2xl font-bold text-white">Form Tambah Product</h1>
         </div>
       </section>
+      
+      {message && (
+        <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
+          <span>{message}</span>
+          <button
+            onClick={() => setMessage(null)}
+            className="ml-2 text-white hover:text-gray-200"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Form Card */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
@@ -58,37 +167,57 @@ export default function CreateProduct() {
               <label htmlFor="category_id" className="block text-sm font-medium text-white mb-1">
                 Category
               </label>
-              <Select options={optionsCategory} placeholder="Pilih Kategori" onChange={handleSelectChangeCategory} id="category_id" name="category_id" />
+              <Select
+                options={categories}
+                placeholder="Pilih Kategori"
+                onChange={handleSelectChange("category_id")}
+                id="category_id"
+                name="category_id"
+              />
             </div>
 
             {/* Jenis */}
             <div className="mb-4">
               <label htmlFor="jenis_id" className="block text-sm font-medium text-white mb-1">
-                Category
+                Jenis
               </label>
-              <Select options={optionsCategory} placeholder="Pilih Jenis" onChange={handleSelectChangeCategory} id="jenis_id" name="jenis_id" />
+              <Select
+                options={jenis}
+                placeholder="Pilih Jenis"
+                onChange={handleSelectChange("jenis_id")}
+                id="jenis_id"
+                name="jenis_id"
+              />
             </div>
 
             {/* Merk */}
             <div className="mb-4">
-              <label htmlFor="merk_id" className="block text-sm font-medium text-white mb-1">
-                Category
+              <label htmlFor="brand_id" className="block text-sm font-medium text-white mb-1">
+                Merk
               </label>
-              <Select options={optionsCategory} placeholder="Pilih Merk" onChange={handleSelectChangeCategory} id="merk_id" name="merk_id" />
+              <Select
+                options={brands}
+                placeholder="Pilih Merk"
+                onChange={handleSelectChange("brand_id")}
+                id="brand_id"
+                name="brand_id"
+              />
             </div>
 
             {/* Nama Produk Field */}
             <div className="mb-4">
               <label
-                htmlFor="name"
+                htmlFor="product_name"
                 className="block text-sm font-medium text-white mb-1"
               >
                 Nama Produk
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
+                id="product_name"
+                name="product_name"
+                value={formData.product_name}
+                onChange={handleChange}
                 placeholder="Masukan nama produk"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -107,6 +236,8 @@ export default function CreateProduct() {
                 type="number"
                 id="price"
                 name="price"
+                value={formData.price}
+                onChange={handleChange}
                 placeholder="Masukan harga produk"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -125,7 +256,7 @@ export default function CreateProduct() {
                 type="number"
                 id="stock"
                 name="stock"
-                value={formData.product_name}
+                value={formData.stock}
                 onChange={handleChange}
                 placeholder="Masukan stock produk"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -136,7 +267,7 @@ export default function CreateProduct() {
             {/* Ratings Field */}
             <div className="mb-4">
               <label
-                htmlFor="rating"
+                htmlFor="ratings"
                 className="block text-sm font-medium text-white mb-1"
               >
                 Ratings Produk
@@ -145,9 +276,11 @@ export default function CreateProduct() {
                 type="number"
                 step={0.1}
                 inputMode="decimal"
-                id="stock"
-                name="stock"
-                placeholder="Masukan nama ratings, contoh: 4.5"
+                id="ratings"
+                name="ratings"
+                value={formData.ratings}
+                onChange={handleChange}
+                placeholder="Masukan rating produk, contoh: 4.5"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -156,27 +289,33 @@ export default function CreateProduct() {
             {/* spesifikasi Field */}
             <div className="mb-6">
               <label
-                htmlFor="spesfikasi_produk"
+                htmlFor="spesification_product"
                 className="block text-sm font-medium text-white mb-1"
               >
                 Spesifikasi Produk
               </label>
-              <TextArea 
-              rows={6} 
-              placeholder="Masukan Spesifikasi Produk" />
+              <TextArea
+                rows={6}
+                value={formData.spesification_product}
+                onChange={(value) => setFormData(prev => ({ ...prev, spesification_product: value }))}
+                placeholder="Masukan Spesifikasi Produk"
+              />
             </div>
 
             {/* informasi Field */}
             <div className="mb-6">
               <label
-                htmlFor="slug"
+                htmlFor="information_product"
                 className="block text-sm font-medium text-white mb-1"
               >
                 Informasi Produk
               </label>
               <TextArea
-              rows={6} 
-              placeholder="Masukan Informasi Produk" />
+                rows={6}
+                value={formData.information_product}
+                onChange={(value) => setFormData(prev => ({ ...prev, information_product: value }))}
+                placeholder="Masukan Informasi Produk"
+              />
             </div>
 
             {/* Tombol Simpan dan Kembali */}

@@ -55,8 +55,6 @@ export default function CreateMerk() {
         </div>
       </section>
 
-      {/* Form Card */}
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         {successMessage && (
             <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
               <span>{successMessage}</span>
@@ -68,6 +66,8 @@ export default function CreateMerk() {
               </button>
             </div>
           )}
+      {/* Form Card */}
+      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="p-6">
           <form onSubmit={handleSubmit}>
             {/* Nama Kategori Field */}
