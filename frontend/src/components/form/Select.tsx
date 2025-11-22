@@ -28,6 +28,17 @@ const Select = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const prevDefaultValue = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (
+      defaultValue !== undefined &&
+      defaultValue !== selectedValue &&
+      defaultValue !== prevDefaultValue.current
+    ) {
+      setSelectedValue(defaultValue);
+      prevDefaultValue.current = defaultValue;
+    }
+  }, [defaultValue, selectedValue]);
 
   // Cari label dari value yang dipilih
   const selectedLabel = options.find(opt => opt.value === selectedValue)?.label || placeholder;
