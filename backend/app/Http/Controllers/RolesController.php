@@ -60,7 +60,13 @@ class RolesController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $roles = Roles::findOrFail($id);
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Role retreived data by id successfully!',
+            'roles' => $roles
+        ]);
     }
 
     /**
