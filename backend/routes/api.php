@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
     // manage auth roles
     Route::get('/v1/role', [RolesController::class, 'index']);
     Route::post('/v1/create-role', [RolesController::class, 'store']);
+    Route::get('/v1/edit-role/{id}', [RolesController::class, 'edit']);
     Route::put('/v1/update-role/{id}', [RolesController::class, 'update']);
     Route::delete('/v1/delete-role/{id}', [RolesController::class, 'destroy']);
 
