@@ -10,11 +10,11 @@ class SupabaseStorage
   protected $key;
   protected $bucket;
 
-  public function __construct()
+  public function __construct($bucket = null)
   {
     $this->url = env('SUPABASE_URL') . '/storage/v1/object';
     $this->key = env('SUPABASE_KEY');
-    $this->bucket = env('SUPABASE_BUCKET');
+    $this->bucket = $bucket ?: env('SUPABASE_BUCKET_PRODUCTS');
   }
 
   public function upload($path, $file)

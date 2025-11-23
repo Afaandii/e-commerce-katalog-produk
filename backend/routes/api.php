@@ -57,5 +57,7 @@ Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
     Route::delete('/v1/delete-role/{id}', [RolesController::class, 'destroy']);
 
     // logout action
+    Route::get('/v1/auth/user', [AuthenticateController::class, 'getUser']);
+    Route::put('/v1/auth/user-update', [AuthenticateController::class, 'updateUser']);
     Route::post('/v1/auth/logout', [AuthenticateController::class, 'logout']);
 });
