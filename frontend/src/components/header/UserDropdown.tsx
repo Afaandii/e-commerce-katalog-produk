@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import axios from "axios";
@@ -7,6 +7,8 @@ import { FaRegUserCircle } from "react-icons/fa";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -15,6 +17,47 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    profile_image: "",
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/v1/auth/user", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (response.data.status === "Ok") {
+          const data = response.data.data;
+          setUserData({
+            name: data.name || "",
+            email: data.email || "",
+            profile_image: data.profile_image || "/images/user/default.jpg",
+          });
+        } else {
+          throw new Error(response.data.message || "Unknown error");
+        }
+      } catch (err: any) {
+        if (err.response) {
+          setError(`Server Error: ${err.response.status} - ${err.response.data.message || err.response.statusText}`);
+        } else if (err.request) {
+          setError("No response from server. Check your network or backend.");
+        } else {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -41,6 +84,62 @@ export default function UserDropdown() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center text-gray-700 dark:text-gray-400">
+        <div className="mr-3 h-11 w-11 rounded-full bg-gray-300 animate-pulse"></div>
+        <div className="block mr-1 h-5 w-24 rounded bg-gray-300 animate-pulse"></div>
+        <svg
+          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          width="18"
+          height="20"
+          viewBox="0 0 18 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M4.3125 8.65625L9 13.3437L13.6875 8.65625"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center text-red-500 dark:text-red-400">
+        <div className="mr-3 h-11 w-11 rounded-full bg-red-200 flex items-center justify-center">
+          <FaRegUserCircle className="text-red-500" />
+        </div>
+        <span className="block mr-1 font-medium text-theme-sm">Error</span>
+        <svg
+          className={`stroke-red-500 dark:stroke-red-400 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          width="18"
+          height="20"
+          viewBox="0 0 18 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M4.3125 8.65625L9 13.3437L13.6875 8.65625"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <button
@@ -48,10 +147,10 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src="/images/user/owner.jpg" alt="User" />
+          <img src={userData.profile_image || "/images/user/default.jpg"} alt="User" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
+        <span className="block mr-1 font-medium text-theme-sm">{userData.name}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -79,10 +178,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Musharof Chowdhury
+            {userData.name}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            randomuser@pimjo.com
+            {userData.email}
           </span>
         </div>
 
@@ -91,7 +190,7 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              to="/profile"
+              to="/user-profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <FaRegUserCircle className="size-5" />
