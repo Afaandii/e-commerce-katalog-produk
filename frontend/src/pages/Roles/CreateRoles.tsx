@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function CreateCategory() {
+export default function CreateRoles() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    role_name: "",
     description: "",
   });
 
@@ -22,9 +22,9 @@ export default function CreateCategory() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/create-categories",
+        "http://localhost:8000/api/v1/create-role",
         {
-          category_name: formData.name,
+          role_name: formData.role_name,
           description: formData.description,
         },
         {
@@ -35,10 +35,10 @@ export default function CreateCategory() {
         }
       );
 
-      setFormData({ name: "", description: "" });
+      setFormData({ role_name: "", description: "" });
       if (response.status === 201) {
-        setSuccessMessage("Kategori berhasil ditambahkan.");
-        navigate("/category");
+        setSuccessMessage("Roles berhasil ditambahkan.");
+        navigate("/roles");
       }
     } catch (error: any) {
       console.error("Error creating category:", error);
@@ -47,10 +47,9 @@ export default function CreateCategory() {
 
   return (
     <>
-      {/* Header Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-white">Form Tambah Kategori</h1>
+          <h1 className="text-2xl font-bold text-white">Form Tambah Roles</h1>
         </div>
       </section>
 
@@ -69,19 +68,19 @@ export default function CreateCategory() {
           )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
-            {/* Nama Kategori Field */}
+            {/* Nama role Field */}
             <div className="mb-4">
               <label
-                htmlFor="name"
+                htmlFor="role_name"
                 className="block text-sm font-medium text-white mb-1"
               >
-                Nama Kategori
+                Nama Role
               </label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="role_name"
+                name="role_name"
+                value={formData.role_name}
                 onChange={handleChange}
                 placeholder="Masukan nama kategori"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -118,7 +117,7 @@ export default function CreateCategory() {
                 Simpan
               </button>
               <Link
-                to="/category"
+                to="/roles"
                 className="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md transition-colors duration-200"
               >
                 Kembali

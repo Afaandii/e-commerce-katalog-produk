@@ -3,54 +3,53 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
-type Category = {
+type Roles = {
   id: number;
-  category_name: string;
+  role_name: string;
   description: string | null;
 };
 
-export default function Category() {
-  const [categories, setCategories] = useState<Category[]>([]);
+export default function Roles() {
+  const [roles, setroles] = useState<Roles[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchCategories = async () => {
+  const fetchRoles = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:8000/api/v1/categories", {
+      const res = await axios.get("http://localhost:8000/api/v1/role", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (res.data.status === "success") {
-        setCategories(res.data.data);
+        setroles(res.data.data);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching roles:", error);
     }
 
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchRoles();
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Anda yakin ingin menghapus kategori ini?")) return;
+    if (!window.confirm("Anda yakin ingin menghapus role ini?")) return;
 
     try {
-      await axios.delete(`http://localhost:8000/api/v1/delete-categories/${id}`, {
+      await axios.delete(`http://localhost:8000/api/v1/delete-role/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
-      setCategories(prev => prev.filter(cat => cat.id !== id));
-      setSuccessMessage("Kategori berhasil dihapus.");
-
+      setroles(prev => prev.filter(rol => rol.id !== id));
+      setSuccessMessage("Role berhasil dihapus.");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("Delete failed:", err);
@@ -59,13 +58,11 @@ export default function Category() {
 
   return (
     <>
-      {/* Header Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-white">Manage Tabel Kategori</h1>
-
+          <h1 className="text-2xl font-bold text-white">Manage Tabel Roles</h1>
           <Link
-            to="/create-category"
+            to="/create-roles"
             className="inline-flex items-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200"
           >
             <FaPlus className="text-lg" />
@@ -75,7 +72,7 @@ export default function Category() {
 
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-          <h3 className="text-lg font-semibold text-white">DataTable Kategori</h3>
+          <h3 className="text-lg font-semibold text-white">DataTable Roles</h3>
         </div>
 
         <div className="p-4">
@@ -103,7 +100,7 @@ export default function Category() {
                       No
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Name Kategori
+                      Name Role
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                       Deskripsi
@@ -115,24 +112,24 @@ export default function Category() {
                 </thead>
 
                 <tbody className="bg-gray-800 divide-y divide-gray-600">
-                  {categories.map((cat, index) => (
-                    <tr key={cat.id} className="hover:bg-gray-700">
+                  {roles.map((rol, index) => (
+                    <tr key={rol.id} className="hover:bg-gray-700">
                       <td className="px-4 py-3 text-white">{index + 1}</td>
-                      <td className="px-4 py-3 text-white">{cat.category_name}</td>
+                      <td className="px-4 py-3 text-white">{rol.role_name}</td>
                       <td className="px-4 py-3 text-gray-300">
-                        {cat.description ?? "-"}
+                        {rol.description ?? "-"}
                       </td>
 
                       <td className="px-4 py-3">
                         <Link
-                          to={`/edit-category/${cat.id}`}
+                          to={`/edit-roles/${rol.id}`}
                           className="inline-flex items-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded mr-2"
                         >
                           <FaEdit className="text-lg" />
                         </Link>
 
                         <button
-                          onClick={() => handleDelete(cat.id)}
+                          onClick={() => handleDelete(rol.id)}
                           className="inline-flex items-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded"
                         >
                           <FaTrash className="text-lg" />
@@ -141,7 +138,6 @@ export default function Category() {
                     </tr>
                   ))}
                 </tbody>
-
               </table>
             </div>
           )}

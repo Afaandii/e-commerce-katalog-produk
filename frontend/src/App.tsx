@@ -21,6 +21,9 @@ import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/protect/ProtectedRoute";
+import Roles from "./pages/Roles/Roles";
+import CreateRoles from "./pages/Roles/CreateRoles";
+import EditRoles from "./pages/Roles/EditRoles";
 
 export default function App() {
   return (
@@ -63,6 +66,11 @@ export default function App() {
             <Route path="/image-product" element={<ProdukImage />} />  
             <Route path="/create-image-product" element={<CreateProdukImage />} />
             <Route path="/edit-image-product/:id" element={<EditProdukImage />} />
+
+            {/* Roles page */}
+            <Route path="/roles" element={<Roles />} />
+            <Route path="/create-roles" element={ <CreateRoles /> } />
+            <Route path="/edit-roles/:id" element={ <EditRoles /> } />
           </Route>
 
           {/* Fallback Route If Not Found Page */}
