@@ -14,7 +14,7 @@ type NavItem = {
 // Data menu utama dengan icon FontAwesome
 const navItems: NavItem[] = [
   {
-    icon: <FaExchangeAlt className="text-lg" />, // Ikon untuk Transaction
+    icon: <FaExchangeAlt className="text-lg" />,
     name: "Transaction",
     subItems: [
       { name: "Payments", path: "/payments", pro: false },
@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <FaDatabase className="text-lg" />, // Ikon untuk Master
+    icon: <FaDatabase className="text-lg" />,
     name: "Master",
     subItems: [
       { name: "Kategori", path: "/category", pro: false },
@@ -34,11 +34,11 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <FaCog className="text-lg" />, // Ikon untuk Settings
+    icon: <FaCog className="text-lg" />,
     name: "Settings",
     subItems: [
-      { name: "Users", path: "/user", pro: false },
-      { name: "Roles", path: "/role", pro: false },
+      { name: "Users", path: "/users", pro: false },
+      { name: "Roles", path: "/roles", pro: false },
     ],
   },
 ];
@@ -95,6 +95,13 @@ const AppSidebar: React.FC = () => {
         location.pathname.startsWith("/image-product") ||
         location.pathname.startsWith("/edit-image-product") ||
         location.pathname.startsWith("/create-image-product")
+      );
+    }
+    if (path === "/roles"){
+      return (
+        location.pathname.startsWith("/roles") ||
+        location.pathname.startsWith("/edit-roles") ||
+        location.pathname.startsWith("/create-roles")
       );
     }
 
