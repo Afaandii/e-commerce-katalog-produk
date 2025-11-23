@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\TypeProductController;
 use Illuminate\Http\Request;
@@ -39,6 +40,14 @@ Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
     Route::get('/v1/edit-product/{id}', [ProductController::class, 'edit']);
     Route::put('/v1/update-product/{id}', [ProductController::class, 'update']);
     Route::delete('/v1/delete-product/{id}', [ProductController::class, 'destroy']);
+
+    // manage crud api product image
+    Route::get('/v1/product-image', [ProductImageController::class, 'index']);
+    Route::get('/v1/create-product-image', [ProductImageController::class, 'create']);
+    Route::post('/v1/store-product-image', [ProductImageController::class, 'store']);
+    Route::get('/v1/edit-product-image/{id}', [ProductImageController::class, 'edit']);
+    Route::put('/v1/update-product-image/{id}', [ProductImageController::class, 'update']);
+    Route::delete('/v1/delete-product-image/{id}', [ProductImageController::class, 'destroy']);
 
     // manage auth roles
     Route::get('/v1/role', [RolesController::class, 'index']);
