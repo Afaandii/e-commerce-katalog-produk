@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/protect/ProtectedRoute";
 import Roles from "./pages/Roles/Roles";
 import CreateRoles from "./pages/Roles/CreateRoles";
 import EditRoles from "./pages/Roles/EditRoles";
+import UserProfiles from "./pages/Users/UserProfiles";
 
 export default function App() {
   return (
@@ -71,6 +72,11 @@ export default function App() {
             <Route path="/roles" element={<Roles />} />
             <Route path="/create-roles" element={ <CreateRoles /> } />
             <Route path="/edit-roles/:id" element={ <EditRoles /> } />
+
+          </Route>
+
+          <Route>
+            <Route path="/user-profile" element={<UserProfiles />} />
           </Route>
 
           {/* Fallback Route If Not Found Page */}
