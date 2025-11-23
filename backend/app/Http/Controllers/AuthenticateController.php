@@ -42,13 +42,14 @@ class AuthenticateController extends Controller
     public function updateUser(Request $request)
     {
         $user = Auth::user();
-
-        if (!$user) {
+        if (!$user || !isset($user['id'])) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized. Please login first.',
             ], 401);
         }
+
+        $userModel = User::find($user['id']);
 
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
@@ -67,29 +68,21 @@ class AuthenticateController extends Controller
 
         try {
             $updateData = [];
-
-            // Jika ada name baru
             if ($request->filled('name')) {
                 $updateData['name'] = $request->name;
             }
-
-            // Jika ada email baru
             if ($request->filled('email')) {
                 $updateData['email'] = $request->email;
             }
-
-            // Jika ada password baru
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($request->password);
             }
-
-            // Jika ada file baru
             if ($request->hasFile('profile_image')) {
                 $supabase = app(SupabaseStorage::class, ['bucket' => env('SUPABASE_BUCKET_USERS')]);
 
                 // Hapus gambar lama jika ada
-                if ($user->profile_image) {
-                    $oldPath = str_replace(env('SUPABASE_URL') . '/storage/v1/object/public/' . env('SUPABASE_BUCKET_USERS') . '/', '', $user->profile_image);
+                if ($userModel->profile_image) {
+                    $oldPath = str_replace(env('SUPABASE_URL') . '/storage/v1/object/public/' . env('SUPABASE_BUCKET_USERS') . '/', '', $userModel->profile_image);
                     try {
                         $supabase->delete($oldPath);
                     } catch (\Exception $e) {
@@ -99,23 +92,22 @@ class AuthenticateController extends Controller
 
                 // Upload gambar baru
                 $file = $request->file('profile_image');
-                $fileName = 'user_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $fileName = 'user_' . $userModel->id . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $filePath = "users/{$fileName}";
 
                 $newUrl = $supabase->upload($filePath, $file);
                 $updateData['profile_image'] = $newUrl;
             }
 
-            // Update database
             if (!empty($updateData)) {
-                $user->update($updateData);
+                $userModel->update($updateData);
             }
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'User updated successfully',
                 'data' => [
-                    'user' => $user,
+                    'user' => $userModel,
                 ],
             ], 200);
         } catch (\Exception $e) {
