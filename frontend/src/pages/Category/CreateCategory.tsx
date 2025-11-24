@@ -10,6 +10,10 @@ export default function CreateCategory() {
     description: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -18,7 +22,7 @@ export default function CreateCategory() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = getToken()
 
     try {
       const response = await axios.post(

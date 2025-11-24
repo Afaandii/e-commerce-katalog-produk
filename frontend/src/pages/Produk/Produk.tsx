@@ -25,9 +25,13 @@ export default function Produk() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const fetchProduct= async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
 
       const res = await axios.get("http://localhost:8000/api/v1/product", {
         headers: {
@@ -53,10 +57,11 @@ export default function Produk() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus product ini?")) return;
 
+    const token = getToken()
     try {
       await axios.delete(`http://localhost:8000/api/v1/delete-product/${id}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

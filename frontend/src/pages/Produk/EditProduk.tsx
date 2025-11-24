@@ -25,8 +25,12 @@ export default function EditProduct() {
     information_product: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken()
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/api/v1/edit-product/${id}`, {
@@ -83,7 +87,7 @@ export default function EditProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    const token = getToken
 
     if (!formData.category_id || !formData.type_id || !formData.brand_id || !formData.product_name || !formData.price || !formData.stock) {
       setMessage("Harap lengkapi semua field wajib.");

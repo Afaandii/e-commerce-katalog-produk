@@ -17,6 +17,10 @@ export default function UserInfoCard() {
     profile_image: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   // State untuk loading dan error
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,10 +36,11 @@ export default function UserInfoCard() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      const token = getToken()
       try {
         const response = await axios.get("http://localhost:8000/api/v1/auth/user", {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -90,7 +95,7 @@ export default function UserInfoCard() {
     setError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
 
       const formData = new FormData();
       formData.append('_method', 'PUT');

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function EditMerk() {
-  const { id } = useParams(); 
+  const { id } = useParams<{ id: string }>(); 
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
@@ -12,16 +12,20 @@ export default function EditMerk() {
     description: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const fetchMerk = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
 
-      const res = await axios.get(`http://localhost:8000/api/v1/brand-product`, {
+      const res = await axios.get(`http://localhost:8000/api/v1/edit-brand-product/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Cari kategori sesuai ID
-      const typ = res.data.data.find((c: any) => c.id == id);
+      const typ = res.data.datas
       if (typ) {
         setFormData({
           brand_name: typ.brand_name,
@@ -40,8 +44,7 @@ export default function EditMerk() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-
+    const token = getToken()
     try {
       const response = await axios.put(
         `http://localhost:8000/api/v1/update-brand-product/${id}`,

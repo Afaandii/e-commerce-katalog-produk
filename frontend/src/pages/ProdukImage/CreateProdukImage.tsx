@@ -19,10 +19,14 @@ export default function CreateProdukImage() {
 
   const navigate = useNavigate();
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = getToken()
         const res = await axios.get("http://localhost:8000/api/v1/create-product-image", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,7 +68,6 @@ export default function CreateProdukImage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validasi
     if (!selectedProductId) {
       setError("Silakan pilih produk.");
       return;
@@ -73,7 +76,6 @@ export default function CreateProdukImage() {
       setError("Silakan pilih gambar.");
       return;
     }
-
     setSubmitting(true);
     setError(null);
 
@@ -82,15 +84,14 @@ export default function CreateProdukImage() {
     formData.append("image", selectedFile);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
       await axios.post("http://localhost:8000/api/v1/store-product-image", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-
-      // Redirect ke halaman list setelah sukses
+      
       navigate("/image-product");
     } catch (err: any) {
       console.error("Error saat menyimpan:", err);

@@ -5,10 +5,15 @@ import axios from "axios";
 export default function CreateRoles() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     role_name: "",
     description: "",
   });
+
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -18,8 +23,7 @@ export default function CreateRoles() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-
+    const token = getToken()
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/create-role",

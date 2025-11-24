@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function EditCategory() {
-  const { id } = useParams(); 
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -12,16 +12,19 @@ export default function EditCategory() {
     description: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const fetchCategory = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
 
-      const res = await axios.get(`http://localhost:8000/api/v1/categories`, {
+      const res = await axios.get(`http://localhost:8000/api/v1/edit-categories/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Cari kategori sesuai ID
-      const cat = res.data.data.find((c: any) => c.id == id);
+      const cat = res.data.datas
       if (cat) {
         setFormData({
           name: cat.category_name,

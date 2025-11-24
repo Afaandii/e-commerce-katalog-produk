@@ -38,7 +38,7 @@ export default function SignInForm() {
           localStorage.removeItem("token");
         }
 
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       }
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || "Login gagal!");

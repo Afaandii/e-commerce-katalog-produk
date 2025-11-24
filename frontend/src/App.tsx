@@ -33,7 +33,7 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Login Form And Register */}
-          <Route index path="/" element={<SignIn />} />
+          <Route path="/login" element={<SignIn />} />
           <Route path="/register" element={<SignUp />} />
 
           {/* Dashboard Layout */}
@@ -42,7 +42,8 @@ export default function App() {
               <AppLayout />
             </ProtectedRoute>
             }>
-            <Route path="/dashboard" element={<Home />} />
+            {/* Dashbord admin homepage */}
+            <Route index element={<Home />} />
             {/* Category Page */}
             <Route path="/category" element={<Category />} />
             <Route path="/create-category" element={<CreateCategory />} />

@@ -23,9 +23,13 @@ export default function CreateProduct() {
     information_product: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
+      const token = getToken()
       try {
         const response = await axios.get("http://localhost:8000/api/v1/create-product", {
           headers: {
@@ -89,7 +93,7 @@ export default function CreateProduct() {
       return;
     }
     
-    const token = localStorage.getItem("token");
+    const token = getToken()
     try {
       const payload = {
         category_id: formData.category_id,
@@ -139,7 +143,6 @@ export default function CreateProduct() {
 
   return (
     <>
-      {/* Header Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
           <h1 className="text-2xl font-bold text-white">Form Tambah Product</h1>

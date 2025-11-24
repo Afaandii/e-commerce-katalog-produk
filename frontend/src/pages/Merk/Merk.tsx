@@ -14,9 +14,13 @@ export default function Merk() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const fetchBrand= async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
 
       const res = await axios.get("http://localhost:8000/api/v1/brand-product", {
         headers: {
@@ -41,10 +45,11 @@ export default function Merk() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus merk product ini?")) return;
 
+    const token = getToken()
     try {
       await axios.delete(`http://localhost:8000/api/v1/delete-brand-product/${id}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

@@ -22,7 +22,6 @@ type ProductImage = {
 export default function EditProdukImage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [products, setProducts] = useState<Product[]>([]);
   const [productImage, setProductImage] = useState<ProductImage | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
@@ -31,12 +30,16 @@ export default function EditProdukImage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
 
       try {
-        const token = localStorage.getItem("token");
+        const token = getToken()
         const res = await axios.get(`http://localhost:8000/api/v1/edit-product-image/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -91,12 +94,10 @@ export default function EditProdukImage() {
       setError("Silakan pilih produk.");
       return;
     }
-
     setSubmitting(true);
     setError(null);
 
     const formData = new FormData();
-    // hard method supaya memberi tahu laravel klo ini sebenernya post tapi seolah-olah put
     formData.append("_method", "PUT")
     formData.append("product_id", selectedProductId.toString());
 
@@ -105,7 +106,7 @@ export default function EditProdukImage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
       await axios.post(`http://localhost:8000/api/v1/update-product-image/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,

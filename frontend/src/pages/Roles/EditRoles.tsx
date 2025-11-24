@@ -12,10 +12,13 @@ export default function EditRoles() {
     description: "",
   });
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   const fetchRoles = async () => {
     try {
-      const token = localStorage.getItem("token");
-
+      const token = getToken()
       const res = await axios.get(`http://localhost:8000/api/v1/edit-role/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -39,8 +42,7 @@ export default function EditRoles() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-
+    const token = getToken()
     try {
       const response = await axios.put(
         `http://localhost:8000/api/v1/update-role/${id}`,

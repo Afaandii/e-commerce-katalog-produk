@@ -10,6 +10,10 @@ export default function UserDropdown() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
@@ -26,10 +30,11 @@ export default function UserDropdown() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      const token = getToken()
       try {
         const response = await axios.get("http://localhost:8000/api/v1/auth/user", {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -61,7 +66,7 @@ export default function UserDropdown() {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken()
       if (!token) {
         alert("Token tidak ditemukan!");
         return;
