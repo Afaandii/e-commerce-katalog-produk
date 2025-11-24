@@ -25,6 +25,8 @@ import Roles from "./pages/Roles/Roles";
 import CreateRoles from "./pages/Roles/CreateRoles";
 import EditRoles from "./pages/Roles/EditRoles";
 import UserProfiles from "./pages/Users/UserProfiles";
+import Users from "./pages/Users/User";
+import EditUser from "./pages/Users/EditUser";
 
 export default function App() {
   return (
@@ -74,6 +76,9 @@ export default function App() {
             <Route path="/create-roles" element={ <CreateRoles /> } />
             <Route path="/edit-roles/:id" element={ <EditRoles /> } />
 
+            {/* User page */}
+            <Route path="/users" element={<Users />} />
+            <Route path="/edit-users/:id" element={<EditUser />} />
           </Route>
 
           <Route>

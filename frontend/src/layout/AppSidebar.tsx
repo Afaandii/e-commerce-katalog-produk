@@ -104,6 +104,13 @@ const AppSidebar: React.FC = () => {
         location.pathname.startsWith("/create-roles")
       );
     }
+    if (path === "/users"){
+      return (
+        location.pathname.startsWith("/users") ||
+        location.pathname.startsWith("/edit-users") ||
+        location.pathname.startsWith("/create-users")
+      );
+    }
 
     return (
       location.pathname.startsWith(path) &&

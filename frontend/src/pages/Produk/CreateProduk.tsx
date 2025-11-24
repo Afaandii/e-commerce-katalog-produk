@@ -37,7 +37,6 @@ export default function CreateProduct() {
           },
         });
 
-        console.log("Data fetched for form:", response.data);
         if (response.data.status === "success") {
           const data = response.data.data;
 
