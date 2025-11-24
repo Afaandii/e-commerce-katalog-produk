@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import NotFound from "./pages/OtherPage/NotFound";
+import NotFound from "./pages/NotFound/NotFound";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Category from "./pages/Category/Category";
