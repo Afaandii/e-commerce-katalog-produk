@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Roles;
 use App\Models\User;
 use App\Services\SupabaseStorage;
 use Illuminate\Http\Request;
@@ -12,6 +13,33 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthenticateController extends Controller
 {
+    public function getAllUser()
+    {
+        $users = User::with(['role'])->get();
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Get all data user successfully!',
+            'datas' => $users
+        ], 200);
+    }
+
+    public function getUserRoleById(string $id)
+    {
+        $roles = Roles::all();
+        $roleById = User::findOrFail($id);
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Get data role user by id successfully!',
+            'datas' => [
+                'roles' => $roles,
+                'roleById' => $roleById
+            ]
+        ]);
+    }
+
+
     public function getUser(Request $request)
     {
         if (!$request->user()) {
@@ -34,6 +62,49 @@ class AuthenticateController extends Controller
                 'role_id' => $user->role_id,
             ],
         ], 200);
+    }
+
+    public function updateRoleUser(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User Role updated successfully',
+            'data' => $validated,
+        ], 201);
+    }
+
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully',
+        ], 201);
     }
 
     /**
