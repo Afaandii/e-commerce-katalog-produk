@@ -18,18 +18,21 @@ Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
     // manage crud api categories
     Route::get('/v1/categories', [CategoriesController::class, 'index']);
     Route::post('/v1/create-categories', [CategoriesController::class, 'store']);
+    Route::get('/v1/edit-categories/{id}', [CategoriesController::class, 'edit']);
     Route::put('/v1/update-categories/{id}', [CategoriesController::class, 'update']);
     Route::delete('/v1/delete-categories/{id}', [CategoriesController::class, 'destroy']);
 
     // manage crud api brand product
     Route::get('/v1/brand-product', [BrandProductController::class, 'index']);
     Route::post('/v1/create-brand-product', [BrandProductController::class, 'store']);
+    Route::get('/v1/edit-brand-product/{id}', [BrandProductController::class, 'edit']);
     Route::put('/v1/update-brand-product/{id}', [BrandProductController::class, 'update']);
     Route::delete('/v1/delete-brand-product/{id}', [BrandProductController::class, 'destroy']);
 
     // manage crud api type product
     Route::get('/v1/type-product', [TypeProductController::class, 'index']);
     Route::post('/v1/create-type-product', [TypeProductController::class, 'store']);
+    Route::get('/v1/edit-type-product/{id}', [TypeProductController::class, 'edit']);
     Route::put('/v1/update-type-product/{id}', [TypeProductController::class, 'update']);
     Route::delete('/v1/delete-type-product/{id}', [TypeProductController::class, 'destroy']);
 

@@ -60,7 +60,13 @@ class TypeProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $types = TypeProduct::findOrFail($id);
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Get data type by id successfully!',
+            'datas' => $types,
+        ], 200);
     }
 
     /**
