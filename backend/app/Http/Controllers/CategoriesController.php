@@ -60,7 +60,13 @@ class CategoriesController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $categories = Categories::findOrFail($id);
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Get data category by id successfully!',
+            'datas' => $categories,
+        ], 200);
     }
 
     /**

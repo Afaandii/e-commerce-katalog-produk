@@ -60,7 +60,13 @@ class BrandProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $brands = BrandProduct::findOrFail($id);
+
+        return response()->json([
+            'status' => 'Ok',
+            'message' => 'Get data brand by id successfully!',
+            'datas' => $brands
+        ], 200);
     }
 
     /**
