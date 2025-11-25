@@ -27,6 +27,7 @@ import EditRoles from "./pages/Roles/EditRoles";
 import UserProfiles from "./pages/Users/UserProfiles";
 import Users from "./pages/Users/User";
 import EditUser from "./pages/Users/EditUser";
+import HomeToko from "./pages/HomeToko";
 
 export default function App() {
   return (
@@ -37,7 +38,6 @@ export default function App() {
           {/* Login Form And Register */}
           <Route path="/login" element={<SignIn />} />
           <Route path="/register" element={<SignUp />} />
-
           {/* Dashboard Layout */}
           <Route element={
             <ProtectedRoute>
@@ -45,7 +45,7 @@ export default function App() {
             </ProtectedRoute>
             }>
             {/* Dashbord admin homepage */}
-            <Route index element={<Home />} />
+            <Route path="/dashboard" element={<Home />} />
             {/* Category Page */}
             <Route path="/category" element={<Category />} />
             <Route path="/create-category" element={<CreateCategory />} />
@@ -80,9 +80,12 @@ export default function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/edit-users/:id" element={<EditUser />} />
           </Route>
-
           <Route>
             <Route path="/user-profile" element={<UserProfiles />} />
+          </Route>
+          
+          <Route>
+            <Route index path="/" element={ <HomeToko />} />
           </Route>
 
           {/* Fallback Route If Not Found Page */}
