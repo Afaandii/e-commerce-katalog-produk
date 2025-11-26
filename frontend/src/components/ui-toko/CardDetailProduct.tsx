@@ -7,8 +7,8 @@ import {
   FaChevronRight,
   FaChevronLeft,
 } from "react-icons/fa";
-import Footer from "./Footer";
 import Navigation from "./Navigation";
+import Footer from "./Footer";
 
 export default function CardDetailProduct() {
   const thumbnailRef = useRef<HTMLDivElement>(null);
@@ -149,306 +149,327 @@ export default function CardDetailProduct() {
 
   return (
     <>
+      {/* navigasi */}
       <Navigation />
-      <div className="max-w-[1100px] mx-auto px-4 mt-32 mb-10 bg-gray-50">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Left Column - Product Images */}
-          <div className="w-[280px] sticky top-32 h-[calc(100vh-10rem)]">
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-              {/* Main Image with Zoom */}
-              <div
-                className="aspect-square relative bg-gray-100 overflow-hidden"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-                onMouseMove={handleMouseMove}
-              >
-                <img
-                  src={mainImage}
-                  alt={title}
-                  className={`w-full h-full rounded-lg object-cover transition-all duration-200 ${
-                    isHovering ? "blur-sm" : ""
-                  }`}
-                />
-                {/* Zoom Overlay */}
-                {isHovering && (
-                  <div
-                    className="absolute inset-0 pointer-events-none z-10"
-                    style={{
-                      background: `url(${mainImage}) no-repeat`,
-                      backgroundSize: "200%",
-                      backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Thumbnail Container */}
-              <div className="relative p-2">
-                {showPrevButton && (
-                  <button
-                    onClick={() => scrollThumbnails("left")}
-                    className="absolute -left-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
-                    aria-label="Previous image"
-                  >
-                    <FaChevronLeft size={16} className="text-gray-700" />
-                  </button>
-                )}
-
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-[1100px] mx-auto px-2 sm:px-4 mt-4 sm:mt-6 lg:mt-32 mb-10">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Left Column - Product Images */}
+            <div className="w-full lg:w-[280px] lg:sticky lg:top-32 lg:h-[calc(100vh-10rem)]">
+              <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+                {/* Main Image with Zoom */}
                 <div
-                  ref={thumbnailRef}
-                  className="flex gap-2 overflow-x-auto scrollbar-hide"
-                  style={{
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
-                    WebkitOverflowScrolling: "touch",
-                  }}
+                  className="aspect-square relative bg-gray-100 overflow-hidden"
+                  onMouseEnter={() => setIsHovering(true)}
+                  onMouseLeave={() => setIsHovering(false)}
+                  onMouseMove={handleMouseMove}
                 >
-                  {images.map((img, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setMainImage(img.url)}
-                      className={`shrink-0 w-16 h-16 rounded border-2 overflow-hidden ${
-                        mainImage === img.url
-                          ? "border-green-500"
-                          : "border-gray-200"
-                      }`}
-                    >
-                      <img
-                        src={img.url}
-                        alt={img.alt}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
+                  <img
+                    src={mainImage}
+                    alt={title}
+                    className={`w-full h-full rounded-lg object-cover transition-all duration-200 ${
+                      isHovering ? "blur-sm" : ""
+                    }`}
+                  />
+                  {/* Zoom Overlay */}
+                  {isHovering && (
+                    <div
+                      className="absolute inset-0 pointer-events-none z-10"
+                      style={{
+                        background: `url(${mainImage}) no-repeat`,
+                        backgroundSize: "200%",
+                        backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                      }}
+                    />
+                  )}
                 </div>
 
-                {showNextButton && (
-                  <button
-                    onClick={() => scrollThumbnails("right")}
-                    className="absolute -right-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
-                    aria-label="Next image"
+                {/* Thumbnail Container */}
+                <div className="relative p-2">
+                  {showPrevButton && (
+                    <button
+                      onClick={() => scrollThumbnails("left")}
+                      className="absolute -left-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
+                      aria-label="Previous image"
+                    >
+                      <FaChevronLeft size={16} className="text-gray-700" />
+                    </button>
+                  )}
+
+                  <div
+                    ref={thumbnailRef}
+                    className="flex gap-2 overflow-x-auto scrollbar-hide"
+                    style={{
+                      scrollbarWidth: "none",
+                      msOverflowStyle: "none",
+                      WebkitOverflowScrolling: "touch",
+                    }}
                   >
-                    <FaChevronRight size={16} className="text-gray-700" />
-                  </button>
-                )}
+                    {images.map((img, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setMainImage(img.url)}
+                        className={`shrink-0 w-16 h-16 rounded border-2 overflow-hidden ${
+                          mainImage === img.url
+                            ? "border-green-500"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.alt}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+
+                  {showNextButton && (
+                    <button
+                      onClick={() => scrollThumbnails("right")}
+                      className="absolute -right-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
+                      aria-label="Next image"
+                    >
+                      <FaChevronRight size={16} className="text-gray-700" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Middle Column - Product Info */}
-          <div className="flex-1 space-y-4">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm">Terjual</span>
-                  <span className="font-semibold text-sm">{sold}</span>
+            {/* Middle Column - Product Info */}
+            <div className="flex-1 space-y-4">
+              <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
+                  {title}
+                </h1>
+                <div className="flex items-center gap-3 sm:gap-4 mb-4">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs sm:text-sm">Terjual</span>
+                    <span className="font-semibold text-xs sm:text-sm">
+                      {sold}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FaStar className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-semibold text-xs sm:text-sm">
+                      {rating}
+                    </span>
+                    <span className="text-gray-500 text-xs sm:text-sm">
+                      ({totalReviews})
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <FaStar className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-sm">{rating}</span>
-                  <span className="text-gray-500 text-sm">
-                    ({totalReviews})
-                  </span>
-                </div>
-              </div>
 
-              <div className="mb-6">
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatPrice(price)}
+                <div className="mb-4 sm:mb-6">
+                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {formatPrice(price)}
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold mb-3">
-                  Pilih aroma:{" "}
-                  <span className="font-normal text-gray-600">
-                    {variants.find((v) => v.id === activeVariant)?.name}
-                  </span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {variants.map((variant) => (
+                <div className="mb-4 sm:mb-6">
+                  <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3">
+                    Pilih aroma:{" "}
+                    <span className="font-normal text-gray-600">
+                      {variants.find((v) => v.id === activeVariant)?.name}
+                    </span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => setActiveVariant(variant.id)}
+                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
+                          activeVariant === variant.id
+                            ? "border-green-500 bg-green-50 text-green-700"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        {variant.icon && (
+                          <span className="text-sm sm:text-base">
+                            {variant.icon}
+                          </span>
+                        )}
+                        <span className="whitespace-nowrap">
+                          {variant.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-4">
                     <button
-                      key={variant.id}
-                      onClick={() => setActiveVariant(variant.id)}
-                      className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all flex items-center gap-2 ${
-                        activeVariant === variant.id
-                          ? "border-green-500 bg-green-50 text-green-700"
-                          : "border-gray-200 hover:border-gray-300"
+                      onClick={() => setActiveTab("detail")}
+                      className={`flex-1 pb-2 text-center font-medium text-xs sm:text-base border-b-2 transition-colors ${
+                        activeTab === "detail"
+                          ? "border-green-500 text-green-600"
+                          : "border-transparent text-gray-500"
                       }`}
                     >
-                      {variant.icon && <span>{variant.icon}</span>}
-                      {variant.name}
+                      Detail Produk
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={() => setActiveTab("detail")}
-                    className={`flex-1 pb-2 text-center font-medium border-b-2 transition-colors ${
-                      activeTab === "detail"
-                        ? "border-green-500 text-green-600"
-                        : "border-transparent text-gray-500"
-                    }`}
-                  >
-                    Detail Produk
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("info")}
-                    className={`flex-1 pb-2 text-center font-medium border-b-2 transition-colors ${
-                      activeTab === "info"
-                        ? "border-green-500 text-green-600"
-                        : "border-transparent text-gray-500"
-                    }`}
-                  >
-                    Info Penting
-                  </button>
-                </div>
-
-                {activeTab === "detail" && (
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Kondisi:</span>
-                      <span className="font-semibold">{condition}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Min. Pemesanan:</span>
-                      <span className="font-semibold">{minOrder} Buah</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Etalase:</span>
-                      <span className="font-semibold text-green-600">
-                        {category}
-                      </span>
-                    </div>
+                    <button
+                      onClick={() => setActiveTab("info")}
+                      className={`flex-1 pb-2 text-center font-medium text-xs sm:text-base border-b-2 transition-colors ${
+                        activeTab === "info"
+                          ? "border-green-500 text-green-600"
+                          : "border-transparent text-gray-500"
+                      }`}
+                    >
+                      Info Penting
+                    </button>
                   </div>
-                )}
-              </div>
 
-              <div className="mt-6 pt-6 border-t">
-                <div
-                  className={`text-gray-700 ${
-                    !showFullDescription ? "line-clamp-4" : ""
-                  }`}
-                >
-                  <p className="mb-3">{description}</p>
-                  {features.length > 0 && (
-                    <div className="space-y-2">
-                      {features.map((feature, index) => (
-                        <p key={index} className="text-sm">
-                          • {feature}
-                        </p>
-                      ))}
+                  {activeTab === "detail" && (
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between text-xs sm:text-base">
+                        <span className="text-gray-600">Kondisi:</span>
+                        <span className="font-semibold">{condition}</span>
+                      </div>
+                      <div className="flex justify-between text-xs sm:text-base">
+                        <span className="text-gray-600">Min. Pemesanan:</span>
+                        <span className="font-semibold">{minOrder} Buah</span>
+                      </div>
+                      <div className="flex justify-between text-xs sm:text-base">
+                        <span className="text-gray-600">Etalase:</span>
+                        <span className="font-semibold text-green-600">
+                          {category}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="text-green-600 font-medium text-sm mt-2 hover:underline"
-                >
-                  {showFullDescription
-                    ? "Lihat Lebih Sedikit"
-                    : "Lihat Selengkapnya"}
-                </button>
+
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t">
+                  <div
+                    className={`text-gray-700 text-xs sm:text-base ${
+                      !showFullDescription ? "line-clamp-4" : ""
+                    }`}
+                  >
+                    <p className="mb-2 sm:mb-3">{description}</p>
+                    {features.length > 0 && (
+                      <div className="space-y-1 sm:space-y-2">
+                        {features.map((feature, index) => (
+                          <p key={index} className="text-xs sm:text-sm">
+                            • {feature}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setShowFullDescription(!showFullDescription)}
+                    className="text-green-600 font-medium text-xs sm:text-sm mt-2 hover:underline"
+                  >
+                    {showFullDescription
+                      ? "Lihat Lebih Sedikit"
+                      : "Lihat Selengkapnya"}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column - Purchase Card */}
-          <div className="w-[300px] sticky top-32 h-[400px]">
-            <div className="bg-white rounded-xl p-5 shadow-sm h-full flex flex-col justify-between border border-gray-100">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
-                  <span className="text-xl">
-                    {variants.find((v) => v.id === activeVariant)?.icon || "🌿"}
-                  </span>
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900 text-base">
-                    {variants.find((v) => v.id === activeVariant)?.name ||
-                      "NATURAL FRESH"}
+            {/* Right Column - Purchase Card */}
+            <div className="w-full lg:w-[300px] lg:sticky lg:top-32 lg:h-[400px]">
+              <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm lg:h-full flex flex-col justify-between border border-gray-100">
+                <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-lg sm:text-xl">
+                      {variants.find((v) => v.id === activeVariant)?.icon ||
+                        "🌿"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 text-sm sm:text-base">
+                      {variants.find((v) => v.id === activeVariant)?.name ||
+                        "NATURAL FRESH"}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mb-5">
-                <label className="block text-xs text-gray-600 mb-1 font-medium">
-                  Atur jumlah dan catatan
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center border-2 border-gray-200 rounded-lg">
-                    <button
-                      onClick={() => handleQuantityChange("decrement")}
-                      className="px-3 py-1.5 text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50"
-                      disabled={quantity <= 1}
-                    >
-                      −
+                <div className="mb-4 sm:mb-5">
+                  <label className="block text-xs text-gray-600 mb-1 font-medium">
+                    Atur jumlah dan catatan
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center border-2 border-gray-200 rounded-lg">
+                      <button
+                        onClick={() => handleQuantityChange("decrement")}
+                        className="px-2.5 sm:px-3 py-1.5 text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50"
+                        disabled={quantity <= 1}
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value) || 1;
+                          if (val >= 1 && val <= stock) setQuantity(val);
+                        }}
+                        className="w-12 sm:w-14 text-center text-sm border-0 focus:outline-none"
+                      />
+                      <button
+                        onClick={() => handleQuantityChange("increment")}
+                        className="px-2.5 sm:px-3 py-1.5 text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50"
+                        disabled={quantity >= stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Stok:{" "}
+                      <span className="font-semibold text-gray-900">
+                        {stock}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-4 sm:mb-5 pt-3 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-sm sm:text-md">
+                      Subtotal
+                    </span>
+                    <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                      {formatPrice(price * quantity)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 sm:space-y-3">
+                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm sm:text-base py-2 rounded-xl transition-colors shadow-md">
+                    + Keranjang
+                  </button>
+                  <button className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold text-sm sm:text-base py-2 rounded-xl transition-colors">
+                    Beli Langsung
+                  </button>
+                </div>
+
+                <div className="pt-3 sm:pt-4 border-t mt-auto">
+                  <div className="flex gap-3 sm:gap-4 justify-center sm:justify-start">
+                    <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
+                      <FaCommentAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span>Chat</span>
                     </button>
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value) || 1;
-                        if (val >= 1 && val <= stock) setQuantity(val);
-                      }}
-                      className="w-14 text-center text-sm border-0 focus:outline-none"
-                    />
-                    <button
-                      onClick={() => handleQuantityChange("increment")}
-                      className="px-3 py-1.5 text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50"
-                      disabled={quantity >= stock}
-                    >
-                      +
+                    <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
+                      <FaHeart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span>Wishlist</span>
+                    </button>
+                    <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
+                      <FaShareAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span>Share</span>
                     </button>
                   </div>
-                  <div className="text-xs text-gray-600">
-                    Stok:{" "}
-                    <span className="font-semibold text-gray-900">{stock}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-5 pt-3 border-t">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-md">Subtotal</span>
-                  <span className="text-2xl font-bold text-gray-900">
-                    {formatPrice(price * quantity)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-base py-2 rounded-xl transition-colors shadow-md">
-                  + Keranjang
-                </button>
-                <button className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold text-base py-2 rounded-xl transition-colors">
-                  Beli Langsung
-                </button>
-              </div>
-
-              <div className="pt-4 border-t mt-auto">
-                <div className="flex gap-4">
-                  <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
-                    <FaCommentAlt className="w-4 h-4" />
-                    <span>Chat</span>
-                  </button>
-                  <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
-                    <FaHeart className="w-4 h-4" />
-                    <span>Wishlist</span>
-                  </button>
-                  <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
-                    <FaShareAlt className="w-4 h-4" />
-                    <span>Share</span>
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* footer */}
       <Footer />
     </>
   );
