@@ -18,13 +18,16 @@ export default function EditCategory() {
 
   const fetchCategory = async () => {
     try {
-      const token = getToken()
+      const token = getToken();
 
-      const res = await axios.get(`http://localhost:8000/api/v1/edit-categories/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `http://localhost:8000/api/v1/edit-categories/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      const cat = res.data.datas
+      const cat = res.data.datas;
       if (cat) {
         setFormData({
           name: cat.category_name,
@@ -43,7 +46,7 @@ export default function EditCategory() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = getToken();
 
     try {
       const response = await axios.put(
@@ -86,16 +89,16 @@ export default function EditCategory() {
       {/* Form Card */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         {successMessage && (
-            <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
-              <span>{successMessage}</span>
-              <button
-                onClick={() => setSuccessMessage(null)}
-                className="ml-2 text-white hover:text-gray-200"
-              >
-                &times;
-              </button>
-            </div>
-          )}
+          <div className="mb-4 p-3 bg-green-600 text-white rounded-md flex items-center justify-between">
+            <span>{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-2 text-white hover:text-gray-200"
+            >
+              &times;
+            </button>
+          </div>
+        )}
         <div className="p-6">
           <form onSubmit={handleSubmit}>
             {/* Nama Kategori Field */}

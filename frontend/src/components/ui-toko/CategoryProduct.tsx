@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import axios from "axios";
 import {
   FaTag,
   FaWatchmanMonitoring,
@@ -9,83 +10,117 @@ import {
   FaStore,
   FaCreditCard,
   FaTshirt,
-  FaUser,
   FaBaby,
   FaSpa,
+  FaHome,
+  FaGamepad,
+  FaCar,
+  FaPaintBrush,
+  FaWrench,
+  FaLeaf,
+  FaHandHolding,
+  FaBath,
 } from "react-icons/fa";
-import type { JSX } from "react/jsx-runtime";
 
 interface Category {
   id: number;
-  name: string;
-  icon: JSX.Element;
+  category_name: string;
+  description: string;
 }
 
 export default function CategoryProduct() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const categories: Category[] = [
-    {
-      id: 1,
-      name: "Diskon s.d 700rb",
-      icon: <FaTag />,
-    },
-    {
-      id: 2,
-      name: "Watch series 11",
-      icon: <FaWatchmanMonitoring />,
-    },
-    {
-      id: 3,
-      name: "Tagihan & Isi ulang",
-      icon: <FaFileInvoiceDollar />,
-    },
-    {
-      id: 4,
-      name: "Bliblimart",
-      icon: <FaShoppingCart />,
-    },
-    {
-      id: 5,
-      name: "Gadget & Elektronik",
-      icon: <FaLaptop />,
-    },
-    {
-      id: 6,
-      name: "Sport & Wellness",
-      icon: <FaFutbol />,
-    },
-    {
-      id: 7,
-      name: "Komisi 20%",
-      icon: <FaStore />,
-    },
-    {
-      id: 8,
-      name: "PayLater",
-      icon: <FaCreditCard />,
-    },
-    {
-      id: 9,
-      name: "Fashion Pria",
-      icon: <FaTshirt />,
-    },
-    {
-      id: 10,
-      name: "Fashion Wanita",
-      icon: <FaUser />,
-    },
-    {
-      id: 11,
-      name: "Ibu & Bayi",
-      icon: <FaBaby />,
-    },
-    {
-      id: 12,
-      name: "Kecantikan",
-      icon: <FaSpa />,
-    },
-  ];
+  // Fungsi mapping nama kategori ke ikon
+  const getCategoryIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+
+    if (lowerName.includes("elektronik") || lowerName.includes("gadget")) {
+      return <FaLaptop />;
+    }
+    if (
+      lowerName.includes("kesehatan") ||
+      lowerName.includes("olahraga") ||
+      lowerName.includes("sport") ||
+      lowerName.includes("wellness")
+    ) {
+      return <FaFutbol />;
+    }
+    if (lowerName.includes("fashion")) {
+      return <FaTshirt />;
+    }
+    if (lowerName.includes("bayi") || lowerName.includes("ibu")) {
+      return <FaBaby />;
+    }
+    if (
+      lowerName.includes("kosmetik") ||
+      lowerName.includes("kecantikan") ||
+      lowerName.includes("spa")
+    ) {
+      return <FaSpa />;
+    }
+    if (lowerName.includes("rumah") || lowerName.includes("tangga")) {
+      return <FaHome />;
+    }
+    if (lowerName.includes("mainan")) {
+      return <FaGamepad />;
+    }
+    if (lowerName.includes("otomotif")) {
+      return <FaCar />;
+    }
+    if (lowerName.includes("hobi")) {
+      return <FaPaintBrush />;
+    }
+    if (lowerName.includes("perbaikan")) {
+      return <FaWrench />;
+    }
+    if (lowerName.includes("kebun") || lowerName.includes("pertanian")) {
+      return <FaLeaf />;
+    }
+    if (lowerName.includes("tagihan") || lowerName.includes("isi ulang")) {
+      return <FaFileInvoiceDollar />;
+    }
+    if (lowerName.includes("komisi")) {
+      return <FaStore />;
+    }
+    if (lowerName.includes("paylater") || lowerName.includes("kredit")) {
+      return <FaCreditCard />;
+    }
+    if (lowerName.includes("diskon") || lowerName.includes("promo")) {
+      return <FaTag />;
+    }
+    if (lowerName.includes("watch") || lowerName.includes("jam")) {
+      return <FaWatchmanMonitoring />;
+    }
+    if (lowerName.includes("blibli") || lowerName.includes("mart")) {
+      return <FaShoppingCart />;
+    }
+    if (lowerName.includes("handmake")) {
+      return <FaHandHolding />;
+    }
+    if (lowerName.includes("kamar") || lowerName.includes("kamar mandi")) {
+      return <FaBath />;
+    }
+    return <FaTag />;
+  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/categories"
+        );
+        if (response.data.status === "success") {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="relative w-full max-w-7xl mx-auto px-6 py-3">
@@ -106,12 +141,14 @@ export default function CategoryProduct() {
           >
             {/* Icon Container - Lingkaran Putih */}
             <div className="bg-white rounded-full p-3 flex items-center justify-center w-16 h-16 shadow-sm border border-gray-200">
-              <div className="text-xl text-gray-700">{category.icon}</div>
+              <div className="text-xl text-gray-700">
+                {getCategoryIcon(category.category_name)}
+              </div>
             </div>
 
             {/* Category Name - Centered & Fixed Height */}
             <p className="text-center text-xs font-medium text-gray-800 line-clamp-2 h-10 flex items-center justify-center px-1 mt-1">
-              {category.name}
+              {category.category_name}
             </p>
           </div>
         ))}
