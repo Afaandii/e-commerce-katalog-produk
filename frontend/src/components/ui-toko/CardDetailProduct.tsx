@@ -14,15 +14,17 @@ export default function CardDetailProduct() {
   const thumbnailRef = useRef<HTMLDivElement>(null);
   const [showPrevButton, setShowPrevButton] = useState(false);
   const [showNextButton, setShowNextButton] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
+  // Update tombol berdasarkan scroll position
   const updateScrollButtons = () => {
     if (!thumbnailRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = thumbnailRef.current;
-    // Jika di awal (scrollLeft === 0), sembunyikan prev
     setShowPrevButton(scrollLeft > 0);
-    // Jika di akhir (scrollLeft + clientWidth >= scrollWidth), sembunyikan next
     setShowNextButton(scrollLeft + clientWidth < scrollWidth - 1);
   };
+
   useEffect(() => {
     const ref = thumbnailRef.current;
     if (!ref) return;
@@ -39,6 +41,7 @@ export default function CardDetailProduct() {
       ref.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
   const scrollThumbnails = (direction: "left" | "right") => {
     if (thumbnailRef.current) {
       const scrollAmount = 120;
@@ -49,7 +52,17 @@ export default function CardDetailProduct() {
       setTimeout(updateScrollButtons, 300);
     }
   };
-  // 📦 Data Dummy di dalam komponen
+
+  // Update posisi zoom saat hover
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPosition({ x, y });
+  };
+
+  // 📦 Data Dummy
   const productData = {
     title:
       "Bowin Activ Spray. Parfum Sepatu Kaos Kaki. Parfum Helm Jaket Anti Bau - NATURAL FRESH",
@@ -97,7 +110,6 @@ export default function CardDetailProduct() {
     ],
   };
 
-  // Destructure data
   const {
     title,
     price,
@@ -138,33 +150,50 @@ export default function CardDetailProduct() {
   return (
     <>
       <Navigation />
-      {/* Main Container */}
       <div className="max-w-[1100px] mx-auto px-4 mt-32 mb-10 bg-gray-50">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Left Column - Product Images */}
           <div className="w-[280px] sticky top-32 h-[calc(100vh-10rem)]">
             <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-              <div className="aspect-square relative bg-gray-100">
+              {/* Main Image with Zoom */}
+              <div
+                className="aspect-square relative bg-gray-100 overflow-hidden"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                onMouseMove={handleMouseMove}
+              >
                 <img
                   src={mainImage}
                   alt={title}
-                  className="w-full h-full rounded-lg object-cover"
+                  className={`w-full h-full rounded-lg object-cover transition-all duration-200 ${
+                    isHovering ? "blur-sm" : ""
+                  }`}
                 />
+                {/* Zoom Overlay */}
+                {isHovering && (
+                  <div
+                    className="absolute inset-0 pointer-events-none z-10"
+                    style={{
+                      background: `url(${mainImage}) no-repeat`,
+                      backgroundSize: "200%",
+                      backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    }}
+                  />
+                )}
               </div>
 
-              {/* Thumbnail Container with Pagination */}
+              {/* Thumbnail Container */}
               <div className="relative p-2">
-                {/* Prev Button */}
                 {showPrevButton && (
                   <button
                     onClick={() => scrollThumbnails("left")}
-                    className="absolute -left-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg transition-colors border border-gray-200"
+                    className="absolute -left-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
                     aria-label="Previous image"
                   >
                     <FaChevronLeft size={16} className="text-gray-700" />
                   </button>
                 )}
-                {/* Thumbnails Scrollable */}
+
                 <div
                   ref={thumbnailRef}
                   className="flex gap-2 overflow-x-auto scrollbar-hide"
@@ -193,11 +222,10 @@ export default function CardDetailProduct() {
                   ))}
                 </div>
 
-                {/* Next Button */}
                 {showNextButton && (
                   <button
                     onClick={() => scrollThumbnails("right")}
-                    className="absolute -right-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg transition-colors border border-gray-200"
+                    className="absolute -right-1 top-1/2 -translate-y-1/2 z-20 bg-white hover:bg-gray-50 rounded-full p-1.5 shadow-lg border border-gray-200"
                     aria-label="Next image"
                   >
                     <FaChevronRight size={16} className="text-gray-700" />
@@ -206,6 +234,7 @@ export default function CardDetailProduct() {
               </div>
             </div>
           </div>
+
           {/* Middle Column - Product Info */}
           <div className="flex-1 space-y-4">
             <div className="bg-white rounded-lg p-4 shadow-sm">
@@ -327,10 +356,10 @@ export default function CardDetailProduct() {
               </div>
             </div>
           </div>
+
           {/* Right Column - Purchase Card */}
           <div className="w-[300px] sticky top-32 h-[400px]">
             <div className="bg-white rounded-xl p-5 shadow-sm h-full flex flex-col justify-between border border-gray-100">
-              {/* Variant Display */}
               <div className="mb-4 flex items-center gap-3">
                 <div className="w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
                   <span className="text-xl">
@@ -345,7 +374,6 @@ export default function CardDetailProduct() {
                 </div>
               </div>
 
-              {/* Quantity Selector */}
               <div className="mb-5">
                 <label className="block text-xs text-gray-600 mb-1 font-medium">
                   Atur jumlah dan catatan
@@ -383,7 +411,6 @@ export default function CardDetailProduct() {
                 </div>
               </div>
 
-              {/* Subtotal */}
               <div className="mb-5 pt-3 border-t">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-md">Subtotal</span>
@@ -393,7 +420,6 @@ export default function CardDetailProduct() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="space-y-3">
                 <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-base py-2 rounded-xl transition-colors shadow-md">
                   + Keranjang
@@ -403,7 +429,6 @@ export default function CardDetailProduct() {
                 </button>
               </div>
 
-              {/* Chat / Wishlist / Share */}
               <div className="pt-4 border-t mt-auto">
                 <div className="flex gap-4">
                   <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900 text-xs">
@@ -424,7 +449,6 @@ export default function CardDetailProduct() {
           </div>
         </div>
       </div>
-      {/* footer */}
       <Footer />
     </>
   );
