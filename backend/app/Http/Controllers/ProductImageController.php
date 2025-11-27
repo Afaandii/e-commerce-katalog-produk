@@ -55,7 +55,7 @@ class ProductImageController extends Controller
         $fileName = 'product_' . $request->product_id . '_' . time() . '.' . $file->getClientOriginalExtension();
         $filePath = "products/{$fileName}";
 
-        $supabase = app(SupabaseStorage::class);
+        $supabase = app(SupabaseStorage::class)->setBucket(env('SUPABASE_BUCKET_PRODUCTS'));
         $supabase->upload($filePath, $file);
 
         $url = $supabase->publicUrl($filePath);

@@ -14,7 +14,13 @@ class SupabaseStorage
   {
     $this->url = env('SUPABASE_URL') . '/storage/v1/object';
     $this->key = env('SUPABASE_KEY');
-    $this->bucket = $bucket ?: env('SUPABASE_BUCKET_PRODUCTS');
+    $this->bucket = $bucket ?: env('SUPABASE_BUCKET');
+  }
+
+  public function setBucket($bucket)
+  {
+    $this->bucket = $bucket;
+    return $this;
   }
 
   public function upload($path, $file)
