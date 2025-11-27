@@ -11,7 +11,9 @@ type Product = {
 
 export default function CreateProdukImage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -26,12 +28,15 @@ export default function CreateProdukImage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const token = getToken()
-        const res = await axios.get("http://localhost:8000/api/v1/create-product-image", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const token = getToken();
+        const res = await axios.get(
+          "http://localhost:8000/api/v1/create-product-image",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (res.data.status === "success") {
           setProducts(res.data.data.product);
@@ -84,14 +89,18 @@ export default function CreateProdukImage() {
     formData.append("image", selectedFile);
 
     try {
-      const token = getToken()
-      await axios.post("http://localhost:8000/api/v1/store-product-image", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
+      const token = getToken();
+      await axios.post(
+        "http://localhost:8000/api/v1/store-product-image",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       navigate("/image-product");
     } catch (err: any) {
       console.error("Error saat menyimpan:", err);
@@ -109,7 +118,9 @@ export default function CreateProdukImage() {
     <>
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-white">Form Tambah Product Image</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Form Tambah Product Image
+          </h1>
         </div>
       </section>
 
@@ -119,20 +130,19 @@ export default function CreateProdukImage() {
           <form onSubmit={handleSubmit}>
             {/* Product */}
             <div className="mb-4">
-              <label htmlFor="product_id" className="block text-sm font-medium text-white mb-1">
+              <label
+                htmlFor="product_id"
+                className="block text-sm font-medium text-white mb-1"
+              >
                 Product
               </label>
-              {loading ? (
-                <div className="text-gray-300">Loading data...</div>
-              ) : (
-                <Select
-                  options={productOptions}
-                  placeholder="Pilih Product"
-                  onChange={handleSelectChangeProductImage}
-                  id="product_id"
-                  name="product_id"
-                />
-              )}
+              <Select
+                options={productOptions}
+                placeholder="Pilih Product"
+                onChange={handleSelectChangeProductImage}
+                id="product_id"
+                name="product_id"
+              />
             </div>
 
             {/* Image Field */}

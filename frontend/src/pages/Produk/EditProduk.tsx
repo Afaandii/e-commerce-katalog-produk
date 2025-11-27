@@ -8,7 +8,9 @@ export default function EditProduct() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [categories, setCategories] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [jenis, setJenis] = useState<{ value: string; label: string }[]>([]);
   const [brands, setBrands] = useState<{ value: string; label: string }[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -30,12 +32,15 @@ export default function EditProduct() {
   };
 
   useEffect(() => {
-    const token = getToken()
+    const token = getToken();
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/v1/edit-product/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `http://localhost:8000/api/v1/edit-product/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const { product, categories, types, brands } = response.data.data;
 
@@ -87,9 +92,16 @@ export default function EditProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = getToken
+    const token = getToken();
 
-    if (!formData.category_id || !formData.type_id || !formData.brand_id || !formData.product_name || !formData.price || !formData.stock) {
+    if (
+      !formData.category_id ||
+      !formData.type_id ||
+      !formData.brand_id ||
+      !formData.product_name ||
+      !formData.price ||
+      !formData.stock
+    ) {
       setMessage("Harap lengkapi semua field wajib.");
       return;
     }
@@ -107,9 +119,13 @@ export default function EditProduct() {
         information_product: formData.information_product,
       };
 
-      await axios.put(`http://localhost:8000/api/v1/update-product/${id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.put(
+        `http://localhost:8000/api/v1/update-product/${id}`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setMessage("Produk berhasil diperbarui.");
       setTimeout(() => navigate("/product"), 1500);
@@ -144,7 +160,10 @@ export default function EditProduct() {
           <form onSubmit={handleSubmit}>
             {/* Category */}
             <div className="mb-4">
-              <label htmlFor="category_id" className="block text-sm font-medium text-white mb-1">
+              <label
+                htmlFor="category_id"
+                className="block text-sm font-medium text-white mb-1"
+              >
                 Category
               </label>
               <Select
@@ -158,7 +177,10 @@ export default function EditProduct() {
 
             {/* Jenis */}
             <div className="mb-4">
-              <label htmlFor="type_id" className="block text-sm font-medium text-white mb-1">
+              <label
+                htmlFor="type_id"
+                className="block text-sm font-medium text-white mb-1"
+              >
                 Jenis
               </label>
               <Select
@@ -172,7 +194,10 @@ export default function EditProduct() {
 
             {/* Merk */}
             <div className="mb-4">
-              <label htmlFor="brand_id" className="block text-sm font-medium text-white mb-1">
+              <label
+                htmlFor="brand_id"
+                className="block text-sm font-medium text-white mb-1"
+              >
                 Merk
               </label>
               <Select
@@ -277,7 +302,12 @@ export default function EditProduct() {
               <TextArea
                 rows={6}
                 value={formData.spesification_product}
-                onChange={(value) => setFormData(prev => ({ ...prev, spesification_product: value }))}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    spesification_product: value,
+                  }))
+                }
                 placeholder="Masukan Spesifikasi Produk"
               />
             </div>
@@ -293,7 +323,12 @@ export default function EditProduct() {
               <TextArea
                 rows={6}
                 value={formData.information_product}
-                onChange={(value) => setFormData(prev => ({ ...prev, information_product: value }))}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    information_product: value,
+                  }))
+                }
                 placeholder="Masukan Informasi Produk"
               />
             </div>
