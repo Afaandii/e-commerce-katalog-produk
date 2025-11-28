@@ -1,4 +1,5 @@
-import { useState } from "react";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import {
   FiSearch,
   FiShoppingCart,
@@ -10,7 +11,42 @@ import {
 
 export default function Navigation() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
+  const fetchCartCount = useCallback(async () => {
+    try {
+      const token = getToken();
+
+      if (!token) {
+        setCartCount(0);
+        return;
+      }
+
+      const res = await axios.get("http://localhost:8000/api/v1/cart-product", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const totalItems = res.data?.data?.total_items ?? 0;
+      setCartCount(totalItems);
+    } catch (error) {
+      console.error("Gagal mengambil cart:", error);
+      setCartCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadCart = async () => {
+      await fetchCartCount();
+    };
+
+    loadCart();
+  }, [fetchCartCount]);
 
   return (
     <>
@@ -65,17 +101,23 @@ export default function Navigation() {
                     {cartCount}
                   </span>
                 )}
+                <span
+                  className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold 
+                          rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  {cartCount}
+                </span>
               </a>
               <div className="w-0.5 bg-white h-8 mx-3"></div>
               <a
                 href="/login"
-                className="px-6 py-1 border-2 border-white rounded-full hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
+                className="px-6 py-1 border-2 font-medium border-white rounded-full hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
               >
                 Masuk
               </a>
               <a
                 href="/register"
-                className="px-6 py-1 bg-white text-blue-700 rounded-full hover:bg-gray-100 transition-colors"
+                className="px-6 py-1 bg-white font-medium text-green-600 rounded-full hover:bg-gray-100 transition-colors"
               >
                 Daftar
               </a>

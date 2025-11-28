@@ -1,44 +1,131 @@
-import { useState } from "react";
-import { AiOutlineHeart } from "react-icons/ai";
-import { MdDeleteOutline, MdLocalOffer } from "react-icons/md";
-import { IoChevronForward, IoChevronBack } from "react-icons/io5";
+import { useState, useEffect } from "react";
+import { MdDeleteOutline } from "react-icons/md";
+import { IoChevronBack } from "react-icons/io5";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
 
+// Interface untuk item keranjang dari API
+interface ApiCartItem {
+  id: number;
+  cart_id: number;
+  product_id: number;
+  quantity: number;
+  price: number;
+  created_at: string;
+  updated_at: string;
+  product: {
+    id: number;
+    product_name: string;
+    image_url: string;
+  };
+}
+
+// Interface yang digunakan oleh UI
 interface CartItem {
   id: string;
   name: string;
-  color: string;
-  price: number;
-  originalPrice: number;
-  discount: number;
   image: string;
+  price: number;
   quantity: number;
-  seller: string;
-  buyerPercentage?: number;
 }
 
 const CartProduct = () => {
-  const [items, setItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Mouse Gaming Wireless Silent Click Rechargeable Battery F1 INPHIC",
-      color: "Black",
-      price: 99900,
-      originalPrice: 296667,
-      discount: 66,
-      image:
-        "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&q=80",
-      quantity: 1,
-      seller: "RELTON",
-      buyerPercentage: 99,
-    },
-  ]);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [totalPrice, setTotalPrice] = useState(0);
 
-  const [selectAll, setSelectAll] = useState(true);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(
-    new Set(["1"])
-  );
+  // ✅ State untuk notifikasi (hanya untuk hapus)
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
+  // ✅ Tampilkan notifikasi (hanya untuk hapus)
+  const showNotification = (message: string, type: "success" | "error") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 2500);
+  };
+
+  // Fetch cart
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        setLoading(true);
+        const token = getToken();
+
+        if (!token) {
+          setError("Anda belum login. Silakan login terlebih dahulu.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:8000/api/v1/cart-product",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+          const transformedItems: CartItem[] = data.data.items.map(
+            (item: ApiCartItem) => ({
+              id: item.id.toString(),
+              name: item.product.product_name,
+              image: item.product.image_url || "/placeholder-image.jpg",
+              price: item.price,
+              quantity: item.quantity,
+            })
+          );
+
+          setItems(transformedItems);
+
+          if (transformedItems.length > 0) {
+            const firstItemId = transformedItems[0].id;
+            setSelectedItems(new Set([firstItemId]));
+            setSelectAll(false);
+          }
+        } else {
+          throw new Error(data.message || "Gagal memuat data keranjang");
+        }
+      } catch (err: any) {
+        setError(err.message);
+        console.error("Cart fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  useEffect(() => {
+    const newTotal = items.reduce((sum, item) => {
+      if (selectedItems.has(item.id)) {
+        return sum + item.price * item.quantity;
+      }
+      return sum;
+    }, 0);
+    setTotalPrice(newTotal);
+  }, [selectedItems, items]);
 
   const formatPrice = (price: number) => {
     return `Rp${price.toLocaleString("id-ID")}`;
@@ -64,47 +151,238 @@ const CartProduct = () => {
     setSelectAll(newSelected.size === items.length);
   };
 
-  const updateQuantity = (id: string, delta: number) => {
-    setItems(
-      items.map((item) => {
-        if (item.id === id) {
-          const newQty = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      })
+  // ✅ Update Quantity (tanpa notifikasi & tanpa skeleton)
+  const updateQuantity = async (id: string, delta: number) => {
+    const item = items.find((item) => item.id === id);
+    if (!item) return;
+
+    const newQty = Math.max(1, item.quantity + delta);
+    if (newQty === item.quantity) return;
+
+    // ✅ Langsung update UI tanpa loading
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity: newQty } : item
+      )
     );
+
+    try {
+      const token = getToken();
+      const response = await fetch(
+        "http://localhost:8000/api/v1/cart-product-update",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart_item_id: parseInt(id),
+            quantity: newQty,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal memperbarui quantity");
+      }
+    } catch (err: any) {
+      // Jika gagal, kembalikan ke nilai lama
+      console.error(err);
+      setError(err.message);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity } : item
+        )
+      );
+    }
   };
 
-  const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
-    const newSelected = new Set(selectedItems);
-    newSelected.delete(id);
-    setSelectedItems(newSelected);
+  // ✅ Hapus satu item + notifikasi
+  const removeItem = async (id: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus produk ini?"))
+      return;
+
+    try {
+      const token = getToken();
+      const response = await fetch(
+        "http://localhost:8000/api/v1/cart-product-delete",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            cart_item_id: parseInt(id),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal menghapus item");
+      }
+
+      const data = await response.json();
+      if (data.status === "success") {
+        setItems((prev) => prev.filter((item) => item.id !== id));
+        const newSelected = new Set(selectedItems);
+        newSelected.delete(id);
+        setSelectedItems(newSelected);
+        setSelectAll(newSelected.size === items.length - 1 && items.length > 1);
+        showNotification("Produk berhasil dihapus dari keranjang.", "success");
+      } else {
+        throw new Error(data.message || "Gagal menghapus item");
+      }
+    } catch (err: any) {
+      setError(err.message);
+      showNotification(err.message, "error");
+    }
   };
 
-  const totalPrice = items.reduce((sum, item) => {
-    if (selectedItems.has(item.id)) {
-      return sum + item.price * item.quantity;
-    }
-    return sum;
-  }, 0);
+  // ✅ Hapus semua item yang dipilih + notifikasi
+  const removeAllItems = async () => {
+    if (!window.confirm(`Hapus ${selectedItems.size} produk yang dipilih?`))
+      return;
 
-  const totalDiscount = items.reduce((sum, item) => {
-    if (selectedItems.has(item.id)) {
-      return sum + (item.originalPrice - item.price) * item.quantity;
+    try {
+      const token = getToken();
+      const response = await fetch(
+        "http://localhost:8000/api/v1/cart-product-delete-all",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal menghapus semua item");
+      }
+
+      const data = await response.json();
+      if (data.status === "success") {
+        setItems([]);
+        setSelectedItems(new Set());
+        setSelectAll(false);
+        showNotification(
+          "Semua produk berhasil dihapus dari keranjang.",
+          "success"
+        );
+      } else {
+        throw new Error(data.message || "Gagal menghapus semua item");
+      }
+    } catch (err: any) {
+      setError(err.message);
+      showNotification(err.message, "error");
     }
-    return sum;
-  }, 0);
+  };
+
+  // ... (loading, error, empty cart)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error && !notification) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <strong className="font-bold">Error! </strong>
+            <span className="block sm:inline">{error}</span>
+            <button
+              onClick={() => window.location.reload()}
+              className="ml-4 bg-red-500 text-white px-3 py-1 rounded text-sm"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <>
+        <div className="hidden lg:block">
+          <Navigation />
+        </div>
+        <div className="min-h-screen bg-gray-50 lg:mt-26 lg:p-8 pb-32 lg:pb-8">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="hidden lg:block text-[26px] font-semibold mb-6">
+              Keranjang
+            </h1>
+            <div className="bg-white rounded-lg p-8 text-center">
+              <div className="text-gray-400 mb-4">
+                <svg
+                  className="w-24 h-24 mx-auto"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold mb-2">
+                Keranjang belanja Anda kosong
+              </h2>
+              <p className="text-gray-500 mb-4">
+                Tambahkan produk ke keranjang untuk melanjutkan belanja
+              </p>
+              <a
+                href="/"
+                className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+              >
+                Mulai Belanja
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="hidden lg:block">
+          <Footer />
+        </div>
+      </>
+    );
+  }
 
   const selectedCount = selectedItems.size;
 
   return (
     <>
-      {/* Navigasi - Hidden on mobile */}
+      {/* Navigasi */}
       <div className="hidden lg:block">
         <Navigation />
       </div>
+
+      {/* ✅ Notifikasi Toast (hanya untuk hapus) */}
+      {notification && (
+        <div
+          className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-md text-white ${
+            notification.type === "success" ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-50">
@@ -116,11 +394,20 @@ const CartProduct = () => {
             <h1 className="text-lg font-semibold">Keranjang</h1>
           </div>
         </div>
+        {/* Notifikasi Mobile */}
+        {notification && (
+          <div
+            className={`absolute top-full left-0 right-0 px-4 py-2 text-center text-white ${
+              notification.type === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {notification.message}
+          </div>
+        )}
       </div>
 
       <div className="min-h-screen bg-gray-50 lg:mt-26 lg:p-8 pb-32 lg:pb-8">
         <div className="max-w-7xl mx-auto">
-          {/* Desktop title */}
           <h1 className="hidden lg:block text-[26px] font-semibold mb-6">
             Keranjang
           </h1>
@@ -161,7 +448,16 @@ const CartProduct = () => {
                       <span className="text-gray-500">({items.length})</span>
                     </span>
                   </div>
-                  <button className="text-green-600 hover:text-green-700 font-medium">
+                  <button
+                    onClick={
+                      selectedItems.size === items.length
+                        ? removeAllItems
+                        : () => {
+                            selectedItems.forEach((id) => removeItem(id));
+                          }
+                    }
+                    className="text-green-600 hover:text-green-700 font-medium"
+                  >
                     Hapus
                   </button>
                 </div>
@@ -172,7 +468,16 @@ const CartProduct = () => {
                 <span className="text-sm text-gray-600">
                   {items.length} produk terpilih
                 </span>
-                <button className="text-green-600 hover:text-green-700 font-medium text-sm">
+                <button
+                  onClick={
+                    selectedItems.size === items.length
+                      ? removeAllItems
+                      : () => {
+                          selectedItems.forEach((id) => removeItem(id));
+                        }
+                  }
+                  className="text-green-600 hover:text-green-700 font-medium text-sm"
+                >
                   Hapus
                 </button>
               </div>
@@ -183,7 +488,6 @@ const CartProduct = () => {
                   key={item.id}
                   className="bg-white lg:rounded-lg lg:shadow-sm overflow-hidden"
                 >
-                  {/* Seller Header */}
                   <div className="flex items-center gap-3 p-4 border-b">
                     <button
                       onClick={() => toggleItem(item.id)}
@@ -209,18 +513,8 @@ const CartProduct = () => {
                         </svg>
                       )}
                     </button>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked
-                        className="w-4 h-4 text-purple-600"
-                        readOnly
-                      />
-                      <span className="font-medium">{item.seller}</span>
-                    </div>
                   </div>
 
-                  {/* Product Details */}
                   <div className="p-4">
                     <div className="flex gap-3 lg:gap-4">
                       <button
@@ -248,7 +542,6 @@ const CartProduct = () => {
                         )}
                       </button>
 
-                      {/* Product Image */}
                       <div className="relative w-20 h-20 lg:w-24 lg:h-24 shrink-0">
                         <img
                           src={item.image}
@@ -257,70 +550,20 @@ const CartProduct = () => {
                         />
                       </div>
 
-                      {/* Product Info */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-medium mb-1 line-clamp-2">
                           {item.name}
                         </h3>
 
-                        {/* Mobile: Color dropdown */}
-                        <div className="lg:hidden mb-2">
-                          <button className="flex items-center gap-1 text-sm text-gray-700">
-                            {item.color}
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        {/* Desktop: Color text */}
-                        <p className="hidden lg:block text-sm text-gray-500 mb-3">
-                          {item.color}
-                        </p>
-
-                        {/* Mobile: Buyer percentage */}
-                        {item.buyerPercentage && (
-                          <div className="lg:hidden flex items-center gap-1 mb-2">
-                            <span className="text-orange-500 text-lg">👍</span>
-                            <span className="text-sm text-orange-500 font-medium">
-                              {item.buyerPercentage}% pembeli merasa puas!
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Price section */}
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-0">
                           <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-base lg:text-lg font-bold">
-                                {formatPrice(item.price)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs lg:text-sm text-gray-400 line-through">
-                                {formatPrice(item.originalPrice)}
-                              </span>
-                              <span className="text-xs lg:text-sm text-red-500 font-semibold">
-                                {item.discount}%
-                              </span>
-                            </div>
+                            <span className="text-base lg:text-lg font-bold">
+                              {formatPrice(item.price)}
+                            </span>
                           </div>
 
                           {/* Desktop: Action buttons and quantity */}
                           <div className="hidden lg:flex items-center gap-4">
-                            <button className="text-gray-400 hover:text-red-500 transition-colors">
-                              <AiOutlineHeart className="w-5 h-5" />
-                            </button>
                             <button
                               onClick={() => removeItem(item.id)}
                               className="text-gray-400 hover:text-red-500 transition-colors"
@@ -336,7 +579,7 @@ const CartProduct = () => {
                                 −
                               </button>
                               <span className="px-4 py-1 border-x min-w-12 text-center">
-                                {item.quantity}
+                                {item.quantity} {/* ✅ Tidak ada skeleton */}
                               </span>
                               <button
                                 onClick={() => updateQuantity(item.id, 1)}
@@ -356,7 +599,7 @@ const CartProduct = () => {
                               −
                             </button>
                             <span className="px-4 py-1.5 border-x min-w-12 text-center text-sm">
-                              {item.quantity}
+                              {item.quantity} {/* ✅ Tidak ada skeleton */}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, 1)}
@@ -372,6 +615,7 @@ const CartProduct = () => {
                 </div>
               ))}
             </div>
+
             {/* Desktop Summary Section */}
             <div className="hidden lg:block lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
@@ -384,17 +628,14 @@ const CartProduct = () => {
                   </span>
                 </div>
 
-                <button className="w-full flex items-center justify-between p-4 mb-4 border border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <MdLocalOffer className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      Lagi belum ada promo, nih
-                    </span>
-                  </div>
-                  <IoChevronForward className="w-5 h-5 text-gray-400" />
-                </button>
-
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <button
+                  className={`w-full ${
+                    selectedCount > 0
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-gray-300 cursor-not-allowed"
+                  } text-white font-bold py-3 px-6 rounded-lg transition-colors`}
+                  disabled={selectedCount === 0}
+                >
                   Beli ({selectedCount})
                 </button>
               </div>
@@ -433,38 +674,23 @@ const CartProduct = () => {
                 )}
               </button>
               <div className="text-left">
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-bold">
-                    {formatPrice(totalPrice)}
-                  </span>
-                  <span className="text-red-500 text-xs">🏷️</span>
-                </div>
-                <button className="text-xs text-gray-600 flex items-center gap-1">
-                  Total Diskon {formatPrice(totalDiscount)}
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+                <span className="text-base font-bold">
+                  {formatPrice(totalPrice)}
+                </span>
               </div>
             </div>
-            <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors">
+            <button
+              className={`bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors ${
+                selectedCount === 0 ? "disabled:bg-gray-300" : ""
+              }`}
+              disabled={selectedCount === 0}
+            >
               Beli ({selectedCount})
             </button>
           </div>
         </div>
       </div>
 
-      {/* Footer - Hidden on mobile */}
       <div className="hidden lg:block">
         <Footer />
       </div>

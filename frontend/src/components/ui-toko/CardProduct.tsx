@@ -1,18 +1,36 @@
-import type { FC } from "react";
+import { useEffect, useState, type FC } from "react";
 
 interface CardProductProps {
+  id: number;
   image: string;
   title: string;
   finalPrice: number;
 }
 
-const CardProduct: FC<CardProductProps> = ({ image, title, finalPrice }) => {
+const CardProduct: FC<CardProductProps> = ({
+  id,
+  image,
+  title,
+  finalPrice,
+}) => {
   const formatPrice = (price: number): string => {
     return `Rp${price.toLocaleString("id-ID")}`;
   };
 
+  const slugify = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9\s]/g, "") // Hapus karakter khusus
+      .replace(/\s+/g, "-") // Ganti spasi dengan -
+      .replace(/-+/g, "-") // Hindari multiple -
+      .replace(/^-|-$/g, ""); // Bersihkan awal/akhir
+  };
+
+  const productSlug = slugify(title);
+  const detailUrl = `/detail-produk/${productSlug}/${id}`;
+
   return (
-    <a href="/detail-produk">
+    <a href={detailUrl}>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 w-full max-w-xs">
         {/* Image Container */}
         <div className="relative">
@@ -36,166 +54,89 @@ const CardProduct: FC<CardProductProps> = ({ image, title, finalPrice }) => {
   );
 };
 
-// Demo Component dengan 25 produk dummy
+// Demo Component dengan data dinamis dari API Laravel
 const CardProductDemo: FC = () => {
-  const dummyProducts = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400",
-      title: "Noelle 180 Cm Pohon Natal Premium",
-      finalPrice: 2799300,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=400",
-      title: "Informa 400 Ml Set 3 Pcs Gia...",
-      finalPrice: 199200,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=400",
-      title: "Lego Christmas Ornament Building Set",
-      finalPrice: 194400,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=400",
-      title: "Krisbow 5 Mtr Lampu Hias Led 2 Warna Cahaya",
-      finalPrice: 49950,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?w=400",
-      title: "Hampers Natal 2025 Serenya",
-      finalPrice: 599000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-      title: "TaffSPORT Holder Botol Minuman Sepeda",
-      finalPrice: 17900,
-    },
-    {
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
-      title: "SEPATU NIKE AIR TECH CHALLENGE II",
-      finalPrice: 2679000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400",
-      title: "Karet Elastis Tali Yoga Gym Fitness",
-      finalPrice: 9000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
-      title: "True Wireless JBL Quantum TWS Air",
-      finalPrice: 1680000,
-    },
-    {
-      image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400",
-      title: "Melissa Kick Off Hot Ad Sepatu Heels",
-      finalPrice: 540000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Earbuds Bluetooth 5.0",
-      finalPrice: 299000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1504148457555-43199f613986?w=400",
-      title: "Smartwatch Sport GPS Tracking",
-      finalPrice: 1299000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Power Bank 20000mAh Fast Charging",
-      finalPrice: 349000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Mini Projector HD 1080P Portable",
-      finalPrice: 1899000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Bluetooth Speaker Waterproof IPX7",
-      finalPrice: 599000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "USB-C Cable 2M Fast Charging",
-      finalPrice: 49000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Gaming Mouse RGB 16000 DPI",
-      finalPrice: 299000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Mechanical Keyboard Blue Switch",
-      finalPrice: 799000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Portable SSD 500GB USB 3.2",
-      finalPrice: 1299000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi",
-      finalPrice: 199000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi (2)",
-      finalPrice: 199000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi (3)",
-      finalPrice: 199000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi (4)",
-      finalPrice: 199000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi (5)",
-      finalPrice: 199000,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      title: "Wireless Charger Pad 15W Qi (6)",
-      finalPrice: 199000,
-    },
-  ];
+  const [products, setProducts] = useState<Array<{
+    id: number;
+    image: string;
+    title: string;
+    finalPrice: number;
+  }> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    try {
+      const productResponse = await fetch(
+        "http://localhost:8000/api/v1/product"
+      );
+      if (!productResponse.ok) throw new Error("Gagal mengambil data produk");
+      const productData = await productResponse.json();
+
+      const imageResponse = await fetch(
+        "http://localhost:8000/api/v1/product-image"
+      );
+      if (!imageResponse.ok)
+        throw new Error("Gagal mengambil data gambar produk");
+      const imageData = await imageResponse.json();
+
+      const productsWithImages = productData.data.map((product: any) => {
+        const productImage = imageData.data.find(
+          (img: any) => Number(img.product_id) === Number(product.id)
+        );
+
+        return {
+          id: product.id,
+          image: productImage ? productImage.image_url : product.productName,
+          title: product.product_name,
+          finalPrice: product.price,
+        };
+      });
+
+      setProducts(productsWithImages);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <strong className="font-bold">Error! </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {dummyProducts.map((product, index) => (
+          {products?.map((product, index) => (
             <CardProduct
               key={index}
+              id={product.id}
               image={product.image}
               title={product.title}
               finalPrice={product.finalPrice}

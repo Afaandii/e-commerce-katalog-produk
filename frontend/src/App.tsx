@@ -97,7 +97,10 @@ export default function App() {
           {/* Route halaman toko */}
           <Route>
             <Route index path="/" element={<HomeToko />} />
-            <Route path="/detail-produk" element={<CardDetailProduct />} />
+            <Route
+              path="/detail-produk/:nama/:id"
+              element={<CardDetailProduct />}
+            />
             <Route path="/cart-produk" element={<CartProduct />} />
           </Route>
           {/* Route halaman toko end */}

@@ -9,15 +9,33 @@ import {
 } from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
+import { useParams } from "react-router-dom";
 
 export default function CardDetailProduct() {
+  // All hooks must be at the top, in the same order on every render
   const thumbnailRef = useRef<HTMLDivElement>(null);
+  const { nama, id } = useParams<{ nama: string; id: string }>();
   const [showPrevButton, setShowPrevButton] = useState(false);
   const [showNextButton, setShowNextButton] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
-  // Update tombol berdasarkan scroll position
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
+
+  // State untuk data produk
+  const [productData, setProductData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // State untuk interaksi UI
+  const [quantity, setQuantity] = useState(1);
+  const [activeTab, setActiveTab] = useState("detail");
+  const [mainImage, setMainImage] = useState<string>("");
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showFullTitle, setShowFullTitle] = useState(false);
+
+  // Update tombol scroll
   const updateScrollButtons = () => {
     if (!thumbnailRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = thumbnailRef.current;
@@ -25,6 +43,58 @@ export default function CardDetailProduct() {
     setShowNextButton(scrollLeft + clientWidth < scrollWidth - 1);
   };
 
+  const getToken = () => {
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
+  };
+
+  const addToCart = async () => {
+    if (!productData) return;
+
+    setIsAddingToCart(true);
+    setCartMessage(null);
+
+    const token = getToken();
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/v1/cart-product-store",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            product_id: productData.id,
+            quantity: quantity,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal menambahkan produk ke keranjang");
+      }
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        setCartMessage(data.message);
+        // Sembunyikan pesan setelah 3 detik
+        setTimeout(() => setCartMessage(null), 3000);
+      } else {
+        throw new Error(
+          data.message || "Gagal menambahkan produk ke keranjang"
+        );
+      }
+    } catch (err: any) {
+      setCartMessage(err.message);
+      // Sembunyikan pesan setelah 3 detik
+      setTimeout(() => setCartMessage(null), 3000);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  // Effect for thumbnail scrolling
   useEffect(() => {
     const ref = thumbnailRef.current;
     if (!ref) return;
@@ -42,6 +112,54 @@ export default function CardDetailProduct() {
     };
   }, []);
 
+  // Effect for fetching product data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        if (!nama || !id) {
+          throw new Error("Nama atau ID tidak ditemukan di URL");
+        }
+
+        const response = await fetch(
+          `http://localhost:8000/api/v1/product-detail-shop/${nama}/${id}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Respons bukan JSON");
+        }
+
+        const data = await response.json();
+
+        if (data.status !== "success") {
+          throw new Error(data.message || "Gagal mengambil data produk");
+        }
+
+        setProductData(data.data);
+        if (data.data.images && data.data.images.length > 0) {
+          setMainImage(data.data.images[0].url);
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [nama, id]);
+
+  // Effect for ensuring mainImage has a value
+  useEffect(() => {
+    if (productData?.images && productData.images.length > 0 && !mainImage) {
+      setMainImage(productData.images[0].url);
+    }
+  }, [productData, mainImage]);
+
   const scrollThumbnails = (direction: "left" | "right") => {
     if (thumbnailRef.current) {
       const scrollAmount = 120;
@@ -53,7 +171,6 @@ export default function CardDetailProduct() {
     }
   };
 
-  // Update posisi zoom saat hover
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } =
       e.currentTarget.getBoundingClientRect();
@@ -62,81 +179,8 @@ export default function CardDetailProduct() {
     setZoomPosition({ x, y });
   };
 
-  // 📦 Data Dummy
-  const productData = {
-    title:
-      "Bowin Activ Spray. Parfum Sepatu Kaos Kaki. Parfum Helm Jaket Anti Bau - NATURAL FRESH",
-    price: 16000,
-    rating: 4.9,
-    totalReviews: "11,5rb rating",
-    sold: "10 rb+",
-    stock: 1317,
-    images: [
-      {
-        url: "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800",
-        alt: "Product 1",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800",
-        alt: "Product 2",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1605408499391-6368c628ef42?w=800",
-        alt: "Product 3",
-      },
-      {
-        url: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800",
-        alt: "Product 4",
-      },
-    ],
-    variants: [
-      { id: "natural", name: "NATURAL FRESH", icon: "🌿" },
-      { id: "coffee", name: "COFFEE MILK", icon: "☕" },
-      { id: "black", name: "BLACK ICE", icon: "❄️" },
-      { id: "laundry", name: "LAUNDRY FRESH", icon: "🧺" },
-      { id: "gelato", name: "GELATO ICECREAM", icon: "🍦" },
-    ],
-    selectedVariant: "natural",
-    condition: "Baru",
-    minOrder: 1,
-    category: "OTOMOTIF",
-    description:
-      "Tahukah anda bakteri merupakan penyebab utama timbulnya bau tidak sedap?",
-    features: [
-      "Teknologi baru, lebih cepat basmi bakteri penyebab bau",
-      "Tahan lebih lama; aroma segar dan nyaman",
-      "Bahan natural, aman untuk ibu hamil & bayi serta hewan peliharaan",
-      "Tidak berbentuk aerosol yang mudah meledak",
-    ],
-  };
-
-  const {
-    title,
-    price,
-    rating,
-    totalReviews,
-    sold,
-    stock,
-    images,
-    variants,
-    selectedVariant,
-    condition,
-    minOrder,
-    category,
-    description,
-    features,
-  } = productData;
-
-  const [quantity, setQuantity] = useState(1);
-  const [activeVariant, setActiveVariant] = useState(
-    selectedVariant || variants[0]?.id
-  );
-  const [activeTab, setActiveTab] = useState("detail");
-  const [mainImage, setMainImage] = useState(images[0]?.url);
-  const [showFullDescription, setShowFullDescription] = useState(false);
-
   const handleQuantityChange = (type: "increment" | "decrement") => {
-    if (type === "increment" && quantity < stock) {
+    if (type === "increment" && quantity < productData?.stock) {
       setQuantity(quantity + 1);
     } else if (type === "decrement" && quantity > 1) {
       setQuantity(quantity - 1);
@@ -147,9 +191,61 @@ export default function CardDetailProduct() {
     return `Rp${price.toLocaleString("id-ID")}`;
   };
 
+  // Tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Tampilkan error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <strong className="font-bold">Error! </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Jika data belum tersedia
+  if (!productData) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            Produk tidak ditemukan.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Destructure product data
+  const {
+    title,
+    price,
+    rating,
+    stock,
+    images,
+    condition,
+    minOrder,
+    category,
+    description,
+    features,
+  } = productData;
+
   return (
     <>
-      {/* navigasi */}
       <Navigation />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-[1100px] mx-auto px-2 sm:px-4 mt-20 sm:mt-6 lg:mt-32 mb-10">
@@ -157,7 +253,6 @@ export default function CardDetailProduct() {
             {/* Left Column - Product Images */}
             <div className="w-full lg:w-[280px] lg:sticky lg:top-32 lg:h-[calc(100vh-10rem)]">
               <div className="bg-white rounded-lg overflow-hidden">
-                {/* Main Image with Zoom */}
                 <div
                   className="aspect-square relative bg-gray-100 overflow-hidden"
                   onMouseEnter={() => setIsHovering(true)}
@@ -171,7 +266,6 @@ export default function CardDetailProduct() {
                       isHovering ? "blur-sm" : ""
                     }`}
                   />
-                  {/* Zoom Overlay */}
                   {isHovering && (
                     <div
                       className="absolute inset-0 pointer-events-none z-10"
@@ -184,7 +278,6 @@ export default function CardDetailProduct() {
                   )}
                 </div>
 
-                {/* Thumbnail Container */}
                 <div className="relative p-2">
                   {showPrevButton && (
                     <button
@@ -205,7 +298,7 @@ export default function CardDetailProduct() {
                       WebkitOverflowScrolling: "touch",
                     }}
                   >
-                    {images.map((img, index) => (
+                    {images.map((img: any, index: number) => (
                       <button
                         key={index}
                         onClick={() => setMainImage(img.url)}
@@ -243,20 +336,13 @@ export default function CardDetailProduct() {
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
                   {title}
                 </h1>
+
+                {/* Rating Only — Terjual dan Total Reviews Dihapus */}
                 <div className="flex items-center gap-3 sm:gap-4 mb-4">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs sm:text-sm">Terjual</span>
-                    <span className="font-semibold text-xs sm:text-sm">
-                      {sold}
-                    </span>
-                  </div>
                   <div className="flex items-center gap-1">
                     <FaStar className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-semibold text-xs sm:text-sm">
                       {rating}
-                    </span>
-                    <span className="text-gray-500 text-xs sm:text-sm">
-                      ({totalReviews})
                     </span>
                   </div>
                 </div>
@@ -264,37 +350,6 @@ export default function CardDetailProduct() {
                 <div className="mb-4 sm:mb-6">
                   <div className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {formatPrice(price)}
-                  </div>
-                </div>
-
-                <div className="mb-4 sm:mb-6">
-                  <label className="block text-xs sm:text-sm font-semibold mb-2 sm:mb-3">
-                    Pilih aroma:{" "}
-                    <span className="font-normal text-gray-600">
-                      {variants.find((v) => v.id === activeVariant)?.name}
-                    </span>
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {variants.map((variant) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => setActiveVariant(variant.id)}
-                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 ${
-                          activeVariant === variant.id
-                            ? "border-green-500 bg-green-50 text-green-700"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        {variant.icon && (
-                          <span className="text-sm sm:text-base">
-                            {variant.icon}
-                          </span>
-                        )}
-                        <span className="whitespace-nowrap">
-                          {variant.name}
-                        </span>
-                      </button>
-                    ))}
                   </div>
                 </div>
 
@@ -351,7 +406,7 @@ export default function CardDetailProduct() {
                     <p className="mb-2 sm:mb-3">{description}</p>
                     {features.length > 0 && (
                       <div className="space-y-1 sm:space-y-2">
-                        {features.map((feature, index) => (
+                        {features.map((feature: string, index: number) => (
                           <p key={index} className="text-xs sm:text-sm">
                             • {feature}
                           </p>
@@ -371,27 +426,36 @@ export default function CardDetailProduct() {
               </div>
             </div>
 
-            {/* Right Column - Purchase Card */}
+            {/* Right Column - Purchase Card (Updated) */}
             <div className="w-full lg:w-[300px] lg:sticky lg:top-32 lg:h-[400px]">
               <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm lg:h-full flex flex-col justify-between border border-gray-100">
                 <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-lg sm:text-xl">
-                      {variants.find((v) => v.id === activeVariant)?.icon ||
-                        "🌿"}
-                    </span>
+                  {/* Gambar produk */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg shrink-0 overflow-hidden border border-gray-200">
+                    <img
+                      src={mainImage}
+                      alt={title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm sm:text-base">
-                      {variants.find((v) => v.id === activeVariant)?.name ||
-                        "NATURAL FRESH"}
+                    {/* Judul produk - bisa diklik untuk lihat full */}
+                    <div
+                      onClick={() => setShowFullTitle(!showFullTitle)}
+                      className={`font-semibold text-gray-900 text-sm sm:text-base cursor-pointer ${
+                        showFullTitle ? "whitespace-normal" : "line-clamp-1"
+                      }`}
+                      title={title}
+                      aria-label={title}
+                    >
+                      {title}
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-4 sm:mb-5">
                   <label className="block text-xs text-gray-600 mb-1 font-medium">
-                    Atur jumlah dan catatan
+                    Atur jumlah
                   </label>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center border-2 border-gray-200 rounded-lg">
@@ -440,12 +504,30 @@ export default function CardDetailProduct() {
                 </div>
 
                 <div className="space-y-2 sm:space-y-3">
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm sm:text-base py-2 rounded-xl transition-colors shadow-md">
-                    + Keranjang
+                  <button
+                    onClick={addToCart}
+                    disabled={isAddingToCart}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm sm:text-base py-2 rounded-xl transition-colors shadow-md disabled:bg-gray-400"
+                  >
+                    {isAddingToCart ? "Menambahkan..." : "+ Keranjang"}
                   </button>
                   <button className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold text-sm sm:text-base py-2 rounded-xl transition-colors">
                     Beli Langsung
                   </button>
+
+                  {/* Tampilkan pesan jika ada */}
+                  {cartMessage && (
+                    <div
+                      className={`p-2 rounded text-sm ${
+                        cartMessage.includes("gagal") ||
+                        cartMessage.includes("error")
+                          ? "bg-red-100 text-red-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {cartMessage}
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-3 sm:pt-4 border-t mt-auto">
@@ -469,7 +551,6 @@ export default function CardDetailProduct() {
           </div>
         </div>
       </div>
-      {/* footer */}
       <Footer />
     </>
   );
