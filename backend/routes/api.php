@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\BrandProductController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
@@ -21,10 +22,18 @@ Route::group([], function () {
     Route::get('/v1/type-product', [TypeProductController::class, 'index']);
     Route::get('/v1/product', [ProductController::class, 'index']);
     Route::get('/v1/product-image', [ProductImageController::class, 'index']);
+    Route::get('/v1/product-detail-shop/{nama}/{id}', [ProductController::class, 'getDataShop']);
 });
 
 // management data untuk kelola backend toko
 Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
+    // manage cart product
+    Route::get('/v1/cart-product', [CartController::class, 'index']);
+    Route::post('/v1/cart-product-store', [CartController::class, 'store']);
+    Route::put('/v1/cart-product-update', [CartController::class, 'update']);
+    Route::delete('/v1/cart-product-delete', [CartController::class, 'destroy']);
+    Route::delete('/v1/cart-product-delete-all', [CartController::class, 'deleteAll']);
+
     // manage crud api categories
     Route::post('/v1/create-categories', [CategoriesController::class, 'store']);
     Route::get('/v1/edit-categories/{id}', [CategoriesController::class, 'edit']);
