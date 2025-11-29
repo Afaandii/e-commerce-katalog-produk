@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthenticateController;
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\RolesController;
@@ -23,10 +24,15 @@ Route::group([], function () {
     Route::get('/v1/product', [ProductController::class, 'index']);
     Route::get('/v1/product-image', [ProductImageController::class, 'index']);
     Route::get('/v1/product-detail-shop/{nama}/{id}', [ProductController::class, 'getDataShop']);
+    // callback status dari midtrans
+    Route::post('/v1/payment-notification', [PaymentsController::class, 'handleNotification']);
 });
 
 // management data untuk kelola backend toko
-Route::middleware(['auth:sanctum', 'ensureToken'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
+    // manage payment gateway midtrans
+    Route::post('/v1/payment', [PaymentsController::class, 'store']);
+
     // manage cart product
     Route::get('/v1/cart-product', [CartController::class, 'index']);
     Route::post('/v1/cart-product-store', [CartController::class, 'store']);
