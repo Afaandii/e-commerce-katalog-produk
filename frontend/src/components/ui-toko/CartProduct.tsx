@@ -37,7 +37,12 @@ const CartProduct = () => {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // ✅ State untuk notifikasi (hanya untuk hapus)
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+  });
+
+  // State untuk notifikasi (hanya untuk hapus)
   const [notification, setNotification] = useState<{
     message: string;
     type: "success" | "error";
@@ -47,74 +52,75 @@ const CartProduct = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
-  // ✅ Tampilkan notifikasi (hanya untuk hapus)
+  // Tampilkan notifikasi (hanya untuk hapus)
   const showNotification = (message: string, type: "success" | "error") => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 2500);
   };
 
-  // Fetch cart
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        setLoading(true);
-        const token = getToken();
+  // Fungsi untuk mengambil data keranjang (dibuat menjadi reusable)
+  const fetchCartData = async () => {
+    try {
+      setLoading(true);
+      const token = getToken();
 
-        if (!token) {
-          setError("Anda belum login. Silakan login terlebih dahulu.");
-          setLoading(false);
-          return;
+      if (!token) {
+        setError("Anda belum login. Silakan login terlebih dahulu.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        "http://localhost:8000/api/v1/cart-product",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
         }
+      );
 
-        const response = await fetch(
-          "http://localhost:8000/api/v1/cart-product",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        const transformedItems: CartItem[] = data.data.items.map(
+          (item: ApiCartItem) => ({
+            id: item.id.toString(),
+            name: item.product.product_name,
+            image: item.product.image_url || "/placeholder-image.jpg",
+            price: item.price,
+            quantity: item.quantity,
+          })
         );
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message || `HTTP error! status: ${response.status}`
-          );
+        setItems(transformedItems);
+
+        if (transformedItems.length > 0) {
+          const firstItemId = transformedItems[0].id;
+          setSelectedItems(new Set([firstItemId]));
+          setSelectAll(false);
         }
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-          const transformedItems: CartItem[] = data.data.items.map(
-            (item: ApiCartItem) => ({
-              id: item.id.toString(),
-              name: item.product.product_name,
-              image: item.product.image_url || "/placeholder-image.jpg",
-              price: item.price,
-              quantity: item.quantity,
-            })
-          );
-
-          setItems(transformedItems);
-
-          if (transformedItems.length > 0) {
-            const firstItemId = transformedItems[0].id;
-            setSelectedItems(new Set([firstItemId]));
-            setSelectAll(false);
-          }
-        } else {
-          throw new Error(data.message || "Gagal memuat data keranjang");
-        }
-      } catch (err: any) {
-        setError(err.message);
-        console.error("Cart fetch error:", err);
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error(data.message || "Gagal memuat data keranjang");
       }
-    };
+    } catch (err: any) {
+      setError(err.message);
+      console.error("Cart fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchCart();
+  // Fetch cart saat komponen dimuat
+  useEffect(() => {
+    fetchCartData();
   }, []);
 
   useEffect(() => {
@@ -151,7 +157,7 @@ const CartProduct = () => {
     setSelectAll(newSelected.size === items.length);
   };
 
-  // ✅ Update Quantity (tanpa notifikasi & tanpa skeleton)
+  // Update Quantity (tanpa notifikasi & tanpa skeleton)
   const updateQuantity = async (id: string, delta: number) => {
     const item = items.find((item) => item.id === id);
     if (!item) return;
@@ -159,7 +165,7 @@ const CartProduct = () => {
     const newQty = Math.max(1, item.quantity + delta);
     if (newQty === item.quantity) return;
 
-    // ✅ Langsung update UI tanpa loading
+    // Langsung update UI tanpa loading
     setItems((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, quantity: newQty } : item
@@ -199,7 +205,7 @@ const CartProduct = () => {
     }
   };
 
-  // ✅ Hapus satu item + notifikasi
+  // Hapus satu item + notifikasi
   const removeItem = async (id: string) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus produk ini?"))
       return;
@@ -242,7 +248,7 @@ const CartProduct = () => {
     }
   };
 
-  // ✅ Hapus semua item yang dipilih + notifikasi
+  // Hapus semua item yang dipilih + notifikasi
   const removeAllItems = async () => {
     if (!window.confirm(`Hapus ${selectedItems.size} produk yang dipilih?`))
       return;
@@ -283,8 +289,124 @@ const CartProduct = () => {
     }
   };
 
-  // ... (loading, error, empty cart)
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = getToken();
+      if (!token) return;
 
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/auth/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === "Ok") {
+            setUserData({
+              name: data.data.name,
+              email: data.data.email,
+            });
+          }
+        }
+      } catch (err: any) {
+        console.error("Gagal mengambil data user:", err);
+        // Biarkan saja nilai default jika gagal mengambil data
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // ✅ FUNGSI BARU: Hapus item yang sudah dibayar
+  const clearSelectedItemsAfterPayment = async () => {
+    // Gunakan Promise.all untuk menghapus semua item yang dipilih secara bersamaan
+    const deletePromises = Array.from(selectedItems).map((id) => {
+      // Kita menggunakan logika yang sama dengan removeItem, tapi tanpa konfirmasi
+      const token = getToken();
+      return fetch("http://localhost:8000/api/v1/cart-product-delete", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart_item_id: parseInt(id),
+        }),
+      });
+    });
+
+    try {
+      await Promise.all(deletePromises);
+      // Setelah berhasil menghapus, ambil ulang data keranjang
+      fetchCartData();
+      showNotification("Pembayaran berhasil! Keranjang diperbarui.", "success");
+    } catch (err: any) {
+      setError(err.message);
+      showNotification(
+        "Pembayaran berhasil, tapi gagal memperbarui keranjang.",
+        "error"
+      );
+    }
+  };
+
+  // ✅ handleBuyNow yang sudah diperbaiki untuk keranjang
+  const handleBuyNow = async () => {
+    const token = getToken();
+    if (selectedItems.size === 0) {
+      alert("Pilih minimal satu produk untuk dibeli.");
+      return;
+    }
+
+    try {
+      // 1. Hit API Laravel → dapatkan snap token
+      const response = await fetch("http://localhost:8000/api/v1/payment", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: totalPrice,
+          name: userData.name,
+          email: userData.email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.token) {
+        alert("Gagal membuat invoice Midtrans");
+        return;
+      }
+
+      // 2. Buka popup pembayaran Midtrans
+      window.snap.pay(data.token, {
+        onSuccess: function (result: any) {
+          console.log("Success:", result);
+          // 3. Jika sukses, hapus item yang dibayar dari keranjang
+          clearSelectedItemsAfterPayment();
+        },
+        onPending: function (result: any) {
+          console.log("Pending:", result);
+          alert("Menunggu pembayaran...");
+        },
+        onError: function (result: any) {
+          console.log("Error:", result);
+          alert("Pembayaran gagal!");
+        },
+        onClose: function () {
+          alert("Kamu menutup popup tanpa membayar");
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi error saat memulai pembayaran");
+    }
+  };
+
+  // ... (loading, error, empty cart)
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
@@ -318,48 +440,85 @@ const CartProduct = () => {
   if (items.length === 0) {
     return (
       <>
+        {/* Navigasi */}
         <div className="hidden lg:block">
           <Navigation />
         </div>
+
+        {/* Mobile Header */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-50">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-4">
+              <a href="/" className="text-gray-700">
+                <IoChevronBack className="w-6 h-6" />
+              </a>
+              <h1 className="text-lg font-semibold">Keranjang</h1>
+            </div>
+          </div>
+        </div>
+
         <div className="min-h-screen bg-gray-50 lg:mt-26 lg:p-8 pb-32 lg:pb-8">
           <div className="max-w-7xl mx-auto">
             <h1 className="hidden lg:block text-[26px] font-semibold mb-6">
               Keranjang
             </h1>
-            <div className="bg-white rounded-lg p-8 text-center">
-              <div className="text-gray-400 mb-4">
-                <svg
-                  className="w-24 h-24 mx-auto"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
+
+            <div className="grid lg:grid-cols-3">
+              {/* Cart Items Section - Empty State */}
+              <div className="lg:col-span-2 mt-6">
+                <div className="bg-white rounded-lg p-8 text-center mt-4">
+                  <div className="text-gray-400 mb-4">
+                    <svg
+                      className="w-24 h-24 mx-auto"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold mb-2">
+                    Keranjang belanja Anda kosong
+                  </h2>
+                  <p className="text-gray-500 mb-4">
+                    Tambahkan produk ke keranjang untuk melanjutkan belanja
+                  </p>
+                  <a
+                    href="/"
+                    className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                  >
+                    Mulai Belanja
+                  </a>
+                </div>
               </div>
-              <h2 className="text-xl font-semibold mb-2">
-                Keranjang belanja Anda kosong
-              </h2>
-              <p className="text-gray-500 mb-4">
-                Tambahkan produk ke keranjang untuk melanjutkan belanja
-              </p>
-              <a
-                href="/"
-                className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-              >
-                Mulai Belanja
-              </a>
+
+              {/* Desktop Summary Section - Empty State */}
+              <div className="hidden lg:block lg:col-span-1">
+                <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                  <h2 className="text-xl font-bold mb-4">Ringkasan belanja</h2>
+
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-gray-600">Total</span>
+                    <span className="text-2xl font-bold">Rp0</span>
+                  </div>
+
+                  <button
+                    disabled
+                    className="w-full bg-gray-300 cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Beli (0)
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="hidden lg:block">
-          <Footer />
-        </div>
+        <Footer />
       </>
     );
   }
@@ -579,7 +738,7 @@ const CartProduct = () => {
                                 −
                               </button>
                               <span className="px-4 py-1 border-x min-w-12 text-center">
-                                {item.quantity} {/* ✅ Tidak ada skeleton */}
+                                {item.quantity}
                               </span>
                               <button
                                 onClick={() => updateQuantity(item.id, 1)}
@@ -599,7 +758,7 @@ const CartProduct = () => {
                               −
                             </button>
                             <span className="px-4 py-1.5 border-x min-w-12 text-center text-sm">
-                              {item.quantity} {/* ✅ Tidak ada skeleton */}
+                              {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, 1)}
@@ -628,7 +787,9 @@ const CartProduct = () => {
                   </span>
                 </div>
 
+                {/* ✅ Tambahkan onClick untuk memanggil handleBuyNow */}
                 <button
+                  onClick={handleBuyNow}
                   className={`w-full ${
                     selectedCount > 0
                       ? "bg-green-500 hover:bg-green-600"
@@ -680,6 +841,7 @@ const CartProduct = () => {
               </div>
             </div>
             <button
+              onClick={handleBuyNow}
               className={`bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors ${
                 selectedCount === 0 ? "disabled:bg-gray-300" : ""
               }`}
@@ -691,9 +853,10 @@ const CartProduct = () => {
         </div>
       </div>
 
-      <div className="hidden lg:block">
+      {/* <div className="hidden lg:block">
         <Footer />
-      </div>
+      </div> */}
+      <Footer />
     </>
   );
 };

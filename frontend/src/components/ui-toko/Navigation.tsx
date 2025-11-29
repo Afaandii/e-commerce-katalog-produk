@@ -8,14 +8,25 @@ import {
   FiHome,
   FiUser,
 } from "react-icons/fi";
+import UserDropdown from "../header/UserDropdown";
+import { HiOutlineDocumentText } from "react-icons/hi2";
 
 export default function Navigation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [cartCount, setCartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const getToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
+
+  // Check if user is logged in
+  useEffect(() => {
+    const token = getToken();
+    queueMicrotask(() => {
+      setIsLoggedIn(!!token);
+    });
+  }, []);
 
   const fetchCartCount = useCallback(async () => {
     try {
@@ -101,26 +112,28 @@ export default function Navigation() {
                     {cartCount}
                   </span>
                 )}
-                <span
-                  className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold 
-                          rounded-full w-5 h-5 flex items-center justify-center"
-                >
-                  {cartCount}
-                </span>
               </a>
               <div className="w-0.5 bg-white h-8 mx-3"></div>
-              <a
-                href="/login"
-                className="px-6 py-1 border-2 font-medium border-white rounded-full hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
-              >
-                Masuk
-              </a>
-              <a
-                href="/register"
-                className="px-6 py-1 bg-white font-medium text-green-600 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                Daftar
-              </a>
+
+              {/* Conditional rendering for auth buttons or user dropdown */}
+              {isLoggedIn ? (
+                <UserDropdown />
+              ) : (
+                <>
+                  <a
+                    href="/login"
+                    className="px-6 py-1 border-2 font-medium border-white rounded-full hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
+                  >
+                    Masuk
+                  </a>
+                  <a
+                    href="/register"
+                    className="px-6 py-1 bg-white font-medium text-green-600 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    Daftar
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -145,9 +158,9 @@ export default function Navigation() {
             {/* Logo */}
             <div className="shrink-0">
               <img
-                src="/images/backend-logo.png"
+                src="/images/no-teks-logo.png"
                 alt="Goshop"
-                className="w-25 h-8 mr-2"
+                className="w-12 h-10 mr-2"
               />
             </div>
 
@@ -167,13 +180,19 @@ export default function Navigation() {
               </div>
             </div>
 
-            {/* Tombol Masuk */}
-            <a
-              href="/login"
-              className="ml-2 text-sm font-medium px-3 py-1.5 border-2 border-white rounded-full whitespace-nowrap"
-            >
-              Masuk
-            </a>
+            {/* Conditional rendering for auth button or user icon */}
+            {isLoggedIn ? (
+              <a href="/cart-produk" className="ml-2 text-white">
+                <FiShoppingCart size={26} />
+              </a>
+            ) : (
+              <a
+                href="/login"
+                className="ml-2 text-sm font-medium px-3 py-1.5 border-2 border-white rounded-full whitespace-nowrap"
+              >
+                Masuk
+              </a>
+            )}
           </div>
         </div>
 
@@ -187,18 +206,33 @@ export default function Navigation() {
             href="/cart-produk"
             className="flex flex-col items-center text-gray-600 relative"
           >
-            <FiShoppingCart size={24} />
+            <HiOutlineDocumentText size={24} className="bg-white" />
             {cartCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {cartCount}
               </span>
             )}
-            <span className="text-xs mt-1">Keranjang</span>
+            <span className="text-xs mt-1">Transaksi</span>
           </a>
-          <button className="flex flex-col items-center text-gray-600">
-            <FiUser size={24} />
-            <span className="text-xs mt-1">Akun</span>
-          </button>
+
+          {/* Conditional rendering for account button */}
+          {isLoggedIn ? (
+            <a
+              href="/cart-produk"
+              className="flex flex-col items-center text-gray-600"
+            >
+              <FiUser size={24} />
+              <span className="text-xs mt-1">Akun</span>
+            </a>
+          ) : (
+            <a
+              href="/login"
+              className="flex flex-col items-center text-gray-600"
+            >
+              <FiUser size={24} />
+              <span className="text-xs mt-1">Masuk</span>
+            </a>
+          )}
         </div>
       </div>
     </>

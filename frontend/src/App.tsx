@@ -24,12 +24,12 @@ import ProtectedRoute from "./components/protect/ProtectedRoute";
 import Roles from "./pages/Roles/Roles";
 import CreateRoles from "./pages/Roles/CreateRoles";
 import EditRoles from "./pages/Roles/EditRoles";
-import UserProfiles from "./pages/Users/UserProfiles";
 import Users from "./pages/Users/User";
 import EditUser from "./pages/Users/EditUser";
 import HomeToko from "./pages/HomeToko";
 import CardDetailProduct from "./components/ui-toko/CardDetailProduct";
 import CartProduct from "./components/ui-toko/CartProduct";
+import UserInfoCard from "./pages/Users/UserInfoCard";
 
 export default function App() {
   return (
@@ -43,7 +43,7 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route
             element={
-              <ProtectedRoute>
+              <ProtectedRoute adminOnly={true}>
                 <AppLayout />
               </ProtectedRoute>
             }
@@ -91,18 +91,16 @@ export default function App() {
             <Route path="/edit-users/:id" element={<EditUser />} />
           </Route>
           <Route>
-            <Route path="/user-profile" element={<UserProfiles />} />
+            <Route path="/user-profile" element={<UserInfoCard />} />
           </Route>
 
           {/* Route halaman toko */}
-          <Route>
-            <Route index path="/" element={<HomeToko />} />
-            <Route
-              path="/detail-produk/:nama/:id"
-              element={<CardDetailProduct />}
-            />
-            <Route path="/cart-produk" element={<CartProduct />} />
-          </Route>
+          <Route index path="/" element={<HomeToko />} />
+          <Route
+            path="/detail-produk/:nama/:id"
+            element={<CardDetailProduct />}
+          />
+          <Route path="/cart-produk" element={<CartProduct />} />
           {/* Route halaman toko end */}
 
           {/* Fallback Route If Not Found Page */}
