@@ -309,19 +309,14 @@ export default function CardDetailProduct() {
       window.snap.pay(data.token, {
         onSuccess: function (result: any) {
           console.log("Success:", result);
-          alert("Pembayaran berhasil!");
         },
         onPending: function (result: any) {
           console.log("Pending:", result);
-          alert("Menunggu pembayaran...");
         },
         onError: function (result: any) {
           console.log("Error:", result);
-          alert("Pembayaran gagal!");
         },
-        onClose: function () {
-          alert("Kamu menutup popup tanpa membayar");
-        },
+        onClose: function () {},
       });
     } catch (err) {
       console.error(err);

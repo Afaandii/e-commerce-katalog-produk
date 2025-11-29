@@ -30,6 +30,7 @@ import HomeToko from "./pages/HomeToko";
 import CardDetailProduct from "./components/ui-toko/CardDetailProduct";
 import CartProduct from "./components/ui-toko/CartProduct";
 import UserInfoCard from "./pages/Users/UserInfoCard";
+import SearchResults from "./components/ui-toko/SearchResults";
 
 export default function App() {
   return (
@@ -101,6 +102,7 @@ export default function App() {
             element={<CardDetailProduct />}
           />
           <Route path="/cart-produk" element={<CartProduct />} />
+          <Route path="/search" element={<SearchResults />} />
           {/* Route halaman toko end */}
 
           {/* Fallback Route If Not Found Page */}
