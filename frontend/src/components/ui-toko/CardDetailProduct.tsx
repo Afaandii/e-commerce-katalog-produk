@@ -34,6 +34,10 @@ export default function CardDetailProduct() {
   const [mainImage, setMainImage] = useState<string>("");
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+  });
 
   // Update tombol scroll
   const updateScrollButtons = () => {
@@ -160,6 +164,36 @@ export default function CardDetailProduct() {
     }
   }, [productData, mainImage]);
 
+  // ambil data user yang lagi login
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = getToken();
+      if (!token) return;
+
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/auth/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === "Ok") {
+            setUserData({
+              name: data.data.name,
+              email: data.data.email,
+            });
+          }
+        }
+      } catch (err: any) {
+        console.error("Gagal mengambil data user:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   const scrollThumbnails = (direction: "left" | "right") => {
     if (thumbnailRef.current) {
       const scrollAmount = 120;
@@ -243,6 +277,57 @@ export default function CardDetailProduct() {
     description,
     features,
   } = productData;
+
+  // handle transaksi midtrans
+  const handleBuyNow = async () => {
+    const token = getToken();
+
+    if (!productData) return;
+
+    try {
+      // 1. Hit API Laravel → dapatkan snap token
+      const response = await fetch("http://localhost:8000/api/v1/payment", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: productData.price * quantity,
+          name: userData.name,
+          email: userData.email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.token) {
+        alert("Gagal membuat invoice Midtrans");
+        return;
+      }
+
+      window.snap.pay(data.token, {
+        onSuccess: function (result: any) {
+          console.log("Success:", result);
+          alert("Pembayaran berhasil!");
+        },
+        onPending: function (result: any) {
+          console.log("Pending:", result);
+          alert("Menunggu pembayaran...");
+        },
+        onError: function (result: any) {
+          console.log("Error:", result);
+          alert("Pembayaran gagal!");
+        },
+        onClose: function () {
+          alert("Kamu menutup popup tanpa membayar");
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi error saat memulai pembayaran");
+    }
+  };
 
   return (
     <>
@@ -511,7 +596,10 @@ export default function CardDetailProduct() {
                   >
                     {isAddingToCart ? "Menambahkan..." : "+ Keranjang"}
                   </button>
-                  <button className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold text-sm sm:text-base py-2 rounded-xl transition-colors">
+                  <button
+                    onClick={handleBuyNow}
+                    className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold text-sm sm:text-base py-2 rounded-xl transition-colors"
+                  >
                     Beli Langsung
                   </button>
 

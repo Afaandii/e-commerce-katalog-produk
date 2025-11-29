@@ -30,13 +30,16 @@ export default function UserDropdown() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = getToken()
+      const token = getToken();
       try {
-        const response = await axios.get("http://localhost:8000/api/v1/auth/user", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8000/api/v1/auth/user",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.data.status === "Ok") {
           const data = response.data.data;
@@ -50,7 +53,11 @@ export default function UserDropdown() {
         }
       } catch (err: any) {
         if (err.response) {
-          setError(`Server Error: ${err.response.status} - ${err.response.data.message || err.response.statusText}`);
+          setError(
+            `Server Error: ${err.response.status} - ${
+              err.response.data.message || err.response.statusText
+            }`
+          );
         } else if (err.request) {
           setError("No response from server. Check your network or backend.");
         } else {
@@ -66,7 +73,7 @@ export default function UserDropdown() {
 
   const handleLogout = async () => {
     try {
-      const token = getToken()
+      const token = getToken();
       if (!token) {
         alert("Token tidak ditemukan!");
         return;
@@ -152,10 +159,15 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src={userData.profile_image || "/images/user/default.jpg"} alt="User" />
+          <img
+            src={userData.profile_image || "/images/user/default.jpg"}
+            alt="User"
+          />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{userData.name}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {userData.name}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -199,7 +211,7 @@ export default function UserDropdown() {
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <FaRegUserCircle className="size-5" />
-              Edit profile
+              Akun
             </DropdownItem>
           </li>
         </ul>
@@ -210,7 +222,6 @@ export default function UserDropdown() {
           <TbLogout2 className="size-5" />
           Logout
         </button>
-
       </Dropdown>
     </div>
   );

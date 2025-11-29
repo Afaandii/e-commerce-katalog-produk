@@ -29,16 +29,28 @@ export default function SignInForm() {
 
       if (res.status === 201) {
         const token = res.data.data.token;
+        const user = res.data.data.user; // Assuming API returns user data with role_id
 
         if (isChecked) {
           localStorage.setItem("token", token);
           sessionStorage.removeItem("token");
+          // Store user role info if needed
+          localStorage.setItem("user", JSON.stringify(user));
         } else {
           sessionStorage.setItem("token", token);
           localStorage.removeItem("token");
+          // Store user role info if needed
+          sessionStorage.setItem("user", JSON.stringify(user));
         }
 
-        window.location.href = "/";
+        // Role-based redirection
+        // Assuming role_id 1 is for admin (based on the database image showing Administrator with id=1)
+        // Adjust this logic according to your actual role_id values
+        if (user.role_id === 1) {
+          window.location.href = "/dashboard";
+        } else {
+          window.location.href = "/";
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || "Login gagal!");
@@ -74,7 +86,7 @@ export default function SignInForm() {
               </button>
               <button className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <FaFacebook className="fill-current size-5" />
-                Sign in with Facebook 
+                Sign in with Facebook
               </button>
             </div>
             <div className="relative py-3 sm:py-5">
@@ -94,10 +106,10 @@ export default function SignInForm() {
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input 
-                  placeholder="Masukan email kamu misal example@gmail.com" 
-                  value={email}
-                  onChange={(e: any) => setEmail(e.target.value)}
+                  <Input
+                    placeholder="Masukan email kamu misal example@gmail.com"
+                    value={email}
+                    onChange={(e: any) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
@@ -127,7 +139,7 @@ export default function SignInForm() {
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                     Remember me
+                      Remember me
                     </span>
                   </div>
                   <Link
@@ -152,7 +164,7 @@ export default function SignInForm() {
                   to="/register"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
-                 Registrasi Akun
+                  Registrasi Akun
                 </Link>
               </p>
             </div>
