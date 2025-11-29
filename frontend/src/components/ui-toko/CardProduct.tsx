@@ -7,6 +7,7 @@ interface CardProductProps {
   finalPrice: number;
 }
 
+// Komponen CardProduct tidak diubah, tetap menerima props individual
 const CardProduct: FC<CardProductProps> = ({
   id,
   image,
@@ -54,19 +55,55 @@ const CardProduct: FC<CardProductProps> = ({
   );
 };
 
-// Demo Component dengan data dinamis dari API Laravel
-const CardProductDemo: FC = () => {
-  const [products, setProducts] = useState<Array<{
+// Skeleton Loader Component
+const ProductSkeleton: FC = () => {
+  return (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-w-xs">
+      {/* Skeleton Image */}
+      <div className="relative">
+        <div className="w-full h-64 bg-gray-200 animate-pulse"></div>
+      </div>
+
+      {/* Skeleton Content */}
+      <div className="p-4">
+        {/* Skeleton Title */}
+        <div className="h-12 mb-3">
+          <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+        </div>
+
+        {/* Skeleton Price */}
+        <div className="h-6 bg-gray-200 rounded animate-pulse w-1/2"></div>
+      </div>
+    </div>
+  );
+};
+
+// 1. Tentukan props baru untuk komponen ini
+interface ProductListProps {
+  // Props 'products' bersifat opsional. Jika ada, gunakan data ini.
+  products?: Array<{
     id: number;
     image: string;
     title: string;
     finalPrice: number;
-  }> | null>(null);
-  const [loading, setLoading] = useState(true);
+  }>;
+}
+
+// 2. Ubah nama komponen dan tambahkan props
+const ProductList: FC<ProductListProps> = ({ products: initialProducts }) => {
+  const [products, setProducts] = useState(initialProducts || null);
+  const [loading, setLoading] = useState(!initialProducts);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
+    // Jika sudah ada produk dari props, tidak perlu fetch lagi
+    if (initialProducts) {
+      return;
+    }
+
     try {
+      setLoading(true);
       const productResponse = await fetch(
         "http://localhost:8000/api/v1/product"
       );
@@ -103,12 +140,20 @@ const CardProductDemo: FC = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [initialProducts]);
 
-  if (loading) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 sm:p-8 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
+            <strong className="font-bold">Error! </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -133,15 +178,19 @@ const CardProductDemo: FC = () => {
     <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {products?.map((product, index) => (
-            <CardProduct
-              key={index}
-              id={product.id}
-              image={product.image}
-              title={product.title}
-              finalPrice={product.finalPrice}
-            />
-          ))}
+          {loading
+            ? Array.from({ length: 10 }).map((_, index) => (
+                <ProductSkeleton key={`skeleton-${index}`} />
+              ))
+            : products?.map((product) => (
+                <CardProduct
+                  key={product.id}
+                  id={product.id}
+                  image={product.image}
+                  title={product.title}
+                  finalPrice={product.finalPrice}
+                />
+              ))}
         </div>
       </div>
     </div>
@@ -149,4 +198,4 @@ const CardProductDemo: FC = () => {
 };
 
 export { CardProduct };
-export default CardProductDemo;
+export default ProductList;

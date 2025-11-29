@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   FiSearch,
   FiShoppingCart,
@@ -15,6 +16,24 @@ export default function Navigation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Jika kita berada di halaman search, ambil query dari URL
+    if (location.pathname === "/search") {
+      const queryFromUrl = searchParams.get("sr");
+      queueMicrotask(() => {
+        setSearchQuery(queryFromUrl || "");
+      });
+    } else {
+      queueMicrotask(() => {
+        setSearchQuery("");
+      });
+    }
+  }, [location.pathname, location.search, searchParams]);
 
   const getToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -59,6 +78,15 @@ export default function Navigation() {
     loadCart();
   }, [fetchCartCount]);
 
+  // FUNGSI UNTUK MENANGANI SEARCH
+  const handleSearch = () => {
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      navigate(`/search?sr=${encodeURIComponent(trimmedQuery)}`);
+      setSearchQuery("");
+    }
+  };
+
   return (
     <>
       {/* Desktop Navigation (fixed saat discroll) */}
@@ -94,10 +122,14 @@ export default function Navigation() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search produk"
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Cari produk"
                   className="flex-1 px-4 py-2 text-gray-700 placeholder-gray-500 focus:outline-none rounded-l-lg"
                 />
-                <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 mr-1 rounded-md transition-colors">
+                <button
+                  onClick={handleSearch}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 mr-1 rounded-md transition-colors"
+                >
                   <FiSearch size={24} />
                 </button>
               </div>
@@ -171,10 +203,14 @@ export default function Navigation() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()} // TAMBAHKAN onKeyDown
                   placeholder="Cari produk"
                   className="flex-1 px-3 py-1.5 text-gray-700 text-sm placeholder-gray-500 focus:outline-none"
                 />
-                <button className="bg-green-600 text-white p-1.5 mr-1 rounded-full">
+                <button
+                  onClick={handleSearch}
+                  className="bg-green-600 text-white p-1.5 mr-1 rounded-md"
+                >
                   <FiSearch size={16} />
                 </button>
               </div>
@@ -182,8 +218,16 @@ export default function Navigation() {
 
             {/* Conditional rendering for auth button or user icon */}
             {isLoggedIn ? (
-              <a href="/cart-produk" className="ml-2 text-white">
+              <a
+                href="/cart-produk"
+                className="flex flex-col items-center relative ml-2"
+              >
                 <FiShoppingCart size={26} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </a>
             ) : (
               <a
@@ -203,15 +247,10 @@ export default function Navigation() {
             <span className="text-xs mt-1">Home</span>
           </a>
           <a
-            href="/cart-produk"
+            href="/"
             className="flex flex-col items-center text-gray-600 relative"
           >
             <HiOutlineDocumentText size={24} className="bg-white" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
             <span className="text-xs mt-1">Transaksi</span>
           </a>
 
