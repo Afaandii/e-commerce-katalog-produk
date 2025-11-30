@@ -33,8 +33,8 @@ export default function SignUpForm() {
         }
       );
 
-      if(response.status === 201){
-        window.location.href = "/"; 
+      if (response.status === 201) {
+        window.location.href = "/";
       }
     } catch (error: any) {
       setErrorMessage(
@@ -67,11 +67,23 @@ export default function SignUpForm() {
 
           <div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                onClick={() =>
+                  (window.location.href =
+                    "http://localhost:8000/auth/google/redirect")
+                }
+                className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
                 <FaGoogle className="fill-current size-5" />
                 Sign up with Google
               </button>
-              <button className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                onClick={() =>
+                  (window.location.href =
+                    "http://localhost:8000/auth/facebook/redirect")
+                }
+                className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
                 <FaFacebook className="fill-current size-5" />
                 Sign up with Facebook
               </button>

@@ -31,6 +31,8 @@ import CardDetailProduct from "./components/ui-toko/CardDetailProduct";
 import CartProduct from "./components/ui-toko/CartProduct";
 import UserInfoCard from "./pages/Users/UserInfoCard";
 import SearchResults from "./components/ui-toko/SearchResults";
+import GoogleCallback from "./components/auth/GoogleCallbacl";
+import FacebookCallback from "./components/auth/FacebookCallback";
 
 export default function App() {
   return (
@@ -40,6 +42,8 @@ export default function App() {
         <Routes>
           {/* Login Form And Register */}
           <Route path="/login" element={<SignIn />} />
+          <Route path="/google/callback" element={<GoogleCallback />} />
+          <Route path="/facebook/callback" element={<FacebookCallback />} />
           <Route path="/register" element={<SignUp />} />
           {/* Dashboard Layout */}
           <Route
