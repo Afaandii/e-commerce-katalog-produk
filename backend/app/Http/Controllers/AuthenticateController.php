@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Socialite;
 
 class AuthenticateController extends Controller
 {
@@ -267,5 +268,73 @@ class AuthenticateController extends Controller
             'status'  => 'success',
             'message' => 'Logout successfully',
         ], 200);
+    }
+
+    public function googleRedirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function googleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            // Cari user berdasarkan email
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            // Kalau user belum ada → buat baru
+            if (!$user) {
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'profile_image' => $googleUser->getAvatar(),
+                    'role_id' => 2,
+                    'password' => Hash::make(uniqid()),
+                ]);
+            }
+
+            // Buat token Sanctum
+            $token = $user->createToken('google_token')->plainTextToken;
+
+            // Redirect ke frontend (React)
+            return redirect("http://localhost:5173/google/callback?token=$token");
+        } catch (\Exception $e) {
+            return redirect("http://localhost:5173/login?error=google_auth_failed");
+        }
+    }
+
+    public function facebookRedirect()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+
+    public function facebookCallback()
+    {
+        try {
+            $fbUser = Socialite::driver('facebook')->user();
+
+            // Cek user berdasarkan email
+            $user = User::where('email', $fbUser->getEmail())->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $fbUser->getName(),
+                    'email' => $fbUser->getEmail(),
+                    'profile_image' => $fbUser->getAvatar(),
+                    'role_id' => 2,
+                    'password' => Hash::make(uniqid()),
+                ]);
+            }
+
+            // Buat token login
+            $token = $user->createToken('facebook_token')->plainTextToken;
+
+            // Redirect ke React + kirim token
+            return redirect("http://localhost:5173/facebook/callback?token=$token");
+        } catch (\Exception $e) {
+            return redirect("http://localhost:5173/login?error=facebook_auth_failed");
+        }
     }
 }
