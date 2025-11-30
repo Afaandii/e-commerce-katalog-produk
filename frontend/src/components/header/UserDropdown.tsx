@@ -46,7 +46,7 @@ export default function UserDropdown() {
           setUserData({
             name: data.name || "",
             email: data.email || "",
-            profile_image: data.profile_image || "/images/user/default.jpg",
+            profile_image: data.profile_image || "/images/default.jpg",
           });
         } else {
           throw new Error(response.data.message || "Unknown error");
@@ -160,7 +160,7 @@ export default function UserDropdown() {
       >
         <span className="mr-3 overflow-hidden rounded-full h-10 w-10">
           <img
-            src={userData.profile_image || "/images/user/default.jpg"}
+            src={userData.profile_image || "/images/default.jpg"}
             alt="User"
           />
         </span>

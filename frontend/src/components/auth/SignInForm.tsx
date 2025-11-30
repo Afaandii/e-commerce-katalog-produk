@@ -25,11 +25,12 @@ export default function SignInForm() {
       const res = await axios.post("http://localhost:8000/api/v1/auth/login", {
         email,
         password,
+        remember_me: isChecked,
       });
 
       if (res.status === 201) {
         const token = res.data.data.token;
-        const user = res.data.data.user; // Assuming API returns user data with role_id
+        const user = res.data.data.user;
 
         if (isChecked) {
           localStorage.setItem("token", token);

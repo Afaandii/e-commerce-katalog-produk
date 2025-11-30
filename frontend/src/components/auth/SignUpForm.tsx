@@ -51,7 +51,7 @@ export default function SignUpForm() {
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md text-center">
-              Register Page
+              Halaman Registrasi
             </h1>
             <p className="text-sm text-center text-gray-500 dark:text-gray-400">
               Masukan username, email dan password anda untuk registrasi!
@@ -82,7 +82,7 @@ export default function SignUpForm() {
                   (window.location.href =
                     "http://localhost:8000/auth/facebook/redirect")
                 }
-                className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-6 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
                 <FaFacebook className="fill-current size-5" />
                 Sign up with Facebook
