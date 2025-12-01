@@ -34,14 +34,16 @@ export default function SignInForm() {
 
         if (isChecked) {
           localStorage.setItem("token", token);
-          sessionStorage.removeItem("token");
-          // Store user role info if needed
           localStorage.setItem("user", JSON.stringify(user));
+
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("user");
         } else {
           sessionStorage.setItem("token", token);
-          localStorage.removeItem("token");
-          // Store user role info if needed
           sessionStorage.setItem("user", JSON.stringify(user));
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
         }
 
         // Role-based redirection
