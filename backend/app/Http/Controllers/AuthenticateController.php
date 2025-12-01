@@ -203,12 +203,6 @@ class AuthenticateController extends Controller
             'profile_image' => 'nullable|string',
         ]);
 
-        // Upload image
-        // $profileImagePath = null;
-        // if ($request->hasFile('profile_image')) {
-        //     $profileImagePath = $request->file('profile_image')->store('profile_images', 'public');
-        // }
-
         $user = User::create([
             'role_id'      => $validated['role_id'],
             'name'          => $validated['name'],
