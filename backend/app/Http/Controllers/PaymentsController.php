@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailTransaction;
 use App\Models\Payments;
+use App\Models\TempOrder;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,16 +69,46 @@ class PaymentsController extends Controller
                 'email'      => $request->email,
             ],
             'custom_field1' => $user->id,
+            'custom_field2' => $request->product_id ?? null,
+            'custom_field3' => $request->quantity ?? null,
         ];
 
         // 6. Buat Snap Token Midtrans
         $snapToken = Snap::getSnapToken($params);
 
-        // 7. Kirim token ke React — TIDAK SIMPAN KE DB DI SINI
+        // 7. Simpan ke table sementara
+        try {
+            if ($request->has('cart_items') && is_array($request->cart_items)) {
+                foreach ($request->cart_items as $item) {
+                    TempOrder::create([
+                        'order_id' => $orderId,
+                        'user_id' => $user->id,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                    ]);
+                }
+            } elseif ($request->has('product_id') && $request->has('quantity')) {
+                TempOrder::create([
+                    'order_id' => $orderId,
+                    'user_id' => $user->id,
+                    'product_id' => $request->product_id,
+                    'quantity' => $request->quantity,
+                    'price' => $request->amount,
+                ]);
+            } else {
+                return response()->json(['error' => 'Produk tidak valid'], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error inserting to temp_orders: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+        // 8. Kirim token ke React
         return response()->json([
             'token' => $snapToken,
             'order_id' => $orderId,
-            'user_id' => $user->id, // kirim user_id jika perlu di callback nanti
+            'user_id' => $user->id,
         ]);
     }
 
@@ -131,6 +163,10 @@ class PaymentsController extends Controller
             $grossAmount = $notif->gross_amount;
             $userId = $notif->custom_field1;
 
+            // Cari semua temp orders untuk order_id ini
+            $tempOrders = TempOrder::where('order_id', $orderId)->get();
+
+            // Cek apakah ada transaksi yang sudah dibuat sebelumnya
             $transaction = Transaction::where('midtrans_order_id', $orderId)->first();
 
             if ($transaction) {
@@ -149,9 +185,10 @@ class PaymentsController extends Controller
                         'raw_response' => json_encode($payload),
                     ]);
                 }
-            } else {
-                Log::info("Creating new transaction for Order ID: {$orderId}");
 
+                // Hapus semua temp orders ditable sementara
+                TempOrder::where('order_id', $orderId)->delete();
+            } else {
                 // Buat transaksi baru
                 $transaction = Transaction::create([
                     'user_id' => $userId,
@@ -160,10 +197,10 @@ class PaymentsController extends Controller
                     'transaction_status' => $transactionStatus,
                     'payment_method' => $paymentType,
                     'midtrans_order_id' => $orderId,
-                    'paid_at' => ($transactionStatus == 'settlement') ? now() : null,
+                    'paid_at' => ($transactionStatus == 'settlement') ? now() : $transaction->paid_at,
                 ]);
 
-                // Buat payment baru
+                // Buat payment
                 Payments::create([
                     'transaction_id' => $transaction->id,
                     'midtrans_transaction_id' => $notif->transaction_id,
@@ -172,12 +209,50 @@ class PaymentsController extends Controller
                     'gross_amount' => (int) $grossAmount,
                     'raw_response' => json_encode($payload),
                 ]);
+
+                if ($tempOrders->isNotEmpty()) {
+                    foreach ($tempOrders as $tempOrder) {
+                        DetailTransaction::create([
+                            'transaction_id' => $transaction->id,
+                            'product_id' => $tempOrder->product_id,
+                            'quantity' => $tempOrder->quantity,
+                            'price' => (int) $tempOrder->price,
+                            'subtotal' => (int) ($tempOrder->price * $tempOrder->quantity),
+                        ]);
+                    }
+
+                    // Hapus semua temp orders ditable sementara
+                    TempOrder::where('order_id', $orderId)->delete();
+                } else {
+                    $product_id = $request->input('custom_field2');
+                    $quantity = $request->input('custom_field3');
+
+                    if ($product_id && $quantity) {
+                        $price = (int) ($grossAmount / $quantity);
+                        DetailTransaction::create([
+                            'transaction_id' => $transaction->id,
+                            'product_id' => $product_id,
+                            'quantity' => $quantity,
+                            'price' => $price,
+                            'subtotal' => (int) $grossAmount,
+                        ]);
+                    } else {
+                        Log::warning("No product data found for Order ID: {$orderId} (not saved to detail_transaction)");
+                    }
+                }
             }
+
+            // kirim status 200 agar Midtrans tidak kirim email error
+            return response()->json([
+                'status' => 'success',
+                'message' => 'added transaaction and payments successfully!',
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Midtrans Notification Error: ' . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 400);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 200);
         }
-
-        return response()->json(['status' => 'success']);
     }
 }
