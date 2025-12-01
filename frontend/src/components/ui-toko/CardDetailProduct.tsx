@@ -296,6 +296,8 @@ export default function CardDetailProduct() {
           amount: productData.price * quantity,
           name: userData.name,
           email: userData.email,
+          product_id: productData.id,
+          quantity: quantity,
         }),
       });
 

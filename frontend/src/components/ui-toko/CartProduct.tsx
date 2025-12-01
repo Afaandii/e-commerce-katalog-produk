@@ -23,10 +23,16 @@ interface ApiCartItem {
 // Interface yang digunakan oleh UI
 interface CartItem {
   id: string;
+  product_id: number;
   name: string;
   image: string;
   price: number;
   quantity: number;
+  product: {
+    id: number;
+    product_name: string;
+    image_url: string;
+  };
 }
 
 const CartProduct = () => {
@@ -93,6 +99,7 @@ const CartProduct = () => {
         const transformedItems: CartItem[] = data.data.items.map(
           (item: ApiCartItem) => ({
             id: item.id.toString(),
+            product_id: item.product.id,
             name: item.product.product_name,
             image: item.product.image_url || "/placeholder-image.jpg",
             price: item.price,
@@ -355,6 +362,10 @@ const CartProduct = () => {
       return;
     }
 
+    const selectedCartItems = items.filter((item) =>
+      selectedItems.has(item.id)
+    );
+
     try {
       // 1. Hit API Laravel → dapatkan snap token
       const response = await fetch("http://localhost:8000/api/v1/payment", {
@@ -367,6 +378,11 @@ const CartProduct = () => {
           amount: totalPrice,
           name: userData.name,
           email: userData.email,
+          cart_items: selectedCartItems.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
         }),
       });
 
@@ -386,14 +402,12 @@ const CartProduct = () => {
         },
         onPending: function (result: any) {
           console.log("Pending:", result);
-          alert("Menunggu pembayaran...");
         },
         onError: function (result: any) {
           console.log("Error:", result);
-          alert("Pembayaran gagal!");
         },
         onClose: function () {
-          alert("Kamu menutup popup tanpa membayar");
+          console.log("Menutup Pop Up");
         },
       });
     } catch (err) {
