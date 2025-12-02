@@ -51,6 +51,13 @@ export default function CardDetailProduct() {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
+  const triggerCartUpdate = () => {
+    const event = new CustomEvent("cartUpdated", {
+      detail: { timestamp: Date.now() },
+    });
+    window.dispatchEvent(event);
+  };
+
   const addToCart = async () => {
     if (!productData) return;
 
@@ -84,6 +91,8 @@ export default function CardDetailProduct() {
         setCartMessage(data.message);
         // Sembunyikan pesan setelah 3 detik
         setTimeout(() => setCartMessage(null), 3000);
+        // TRIGGER EVENT CUSTOM UNTUK MEMPERBARUI BADGE CART
+        triggerCartUpdate();
       } else {
         throw new Error(
           data.message || "Gagal menambahkan produk ke keranjang"

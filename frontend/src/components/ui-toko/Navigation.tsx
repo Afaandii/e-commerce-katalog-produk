@@ -78,6 +78,19 @@ export default function Navigation() {
     loadCart();
   }, [fetchCartCount]);
 
+  useEffect(() => {
+    // Fungsi untuk menangani event custom
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+    // Tambahkan event listener
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    // Bersihkan event listener saat komponen dilepas
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate);
+    };
+  }, [fetchCartCount]);
+
   // FUNGSI UNTUK MENANGANI SEARCH
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
