@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailTransaction;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -11,7 +13,24 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
+        $transaction = Transaction::with('user')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get data transaction successfully!',
+            'transaction' => $transaction
+        ], 201);
+    }
+
+    public function getDataDetailTransaction()
+    {
+        $detail_transaction = DetailTransaction::with(['transaction', 'product'])->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get data detail transaction successfully!',
+            'detail_transaction' => $detail_transaction
+        ], 201);
     }
 
     /**
