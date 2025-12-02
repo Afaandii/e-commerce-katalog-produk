@@ -24,7 +24,7 @@ class TransactionController extends Controller
 
     public function getDataDetailTransaction()
     {
-        $detail_transaction = DetailTransaction::with(['transaction', 'product'])->get();
+        $detail_transaction = DetailTransaction::with(['transaction.user', 'product'])->get();
 
         return response()->json([
             'status' => 'success',
