@@ -150,6 +150,24 @@ class PaymentsController extends Controller
         //
     }
 
+    private function generateTransactionCode()
+    {
+        $date = now()->format('Ymd');
+        $lastTransaction = Transaction::where('transaction_code', 'LIKE', "TRX-{$date}-%")
+            ->orderBy('transaction_code', 'desc')
+            ->first();
+
+        if ($lastTransaction) {
+            // Ekstrak nomor urut dari kode terakhir
+            $lastNumber = (int) substr($lastTransaction->transaction_code, -4);
+            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $nextNumber = '0001';
+        }
+
+        return "TRX-{$date}-{$nextNumber}";
+    }
+
     /**
      * Handle Midtrans notification
      */
@@ -196,14 +214,15 @@ class PaymentsController extends Controller
                 TempOrder::where('order_id', $orderId)->delete();
             } else {
                 // Buat transaksi baru
+                $transactionCode = $this->generateTransactionCode();
                 $transaction = Transaction::create([
                     'user_id' => $userId,
-                    'transaction_code' => $orderId,
+                    'transaction_code' => $transactionCode,
                     'total_amount' => (int) $grossAmount,
                     'transaction_status' => $transactionStatus,
                     'payment_method' => $paymentType,
                     'midtrans_order_id' => $orderId,
-                    'paid_at' => ($transactionStatus == 'settlement') ? now() : $transaction->paid_at,
+                    'paid_at' => ($transactionStatus == 'settlement') ? now() : null,
                 ]);
 
                 // Buat payment
