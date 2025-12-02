@@ -33,6 +33,9 @@ import UserInfoCard from "./pages/Users/UserInfoCard";
 import SearchResults from "./components/ui-toko/SearchResults";
 import GoogleCallback from "./components/auth/GoogleCallbacl";
 import FacebookCallback from "./components/auth/FacebookCallback";
+import Payments from "./pages/Payment/Payments";
+import Transaction from "./pages/Transaksi/Transaction";
+import DetailTransaction from "./pages/Transaksi/DetailTransaction";
 
 export default function App() {
   return (
@@ -90,6 +93,11 @@ export default function App() {
             <Route path="/roles" element={<Roles />} />
             <Route path="/create-roles" element={<CreateRoles />} />
             <Route path="/edit-roles/:id" element={<EditRoles />} />
+
+            {/* Payment page */}
+            <Route path="/payment" element={<Payments />} />
+            <Route path="/transaksi" element={<Transaction />} />
+            <Route path="/detail-transaksi" element={<DetailTransaction />} />
 
             {/* User page */}
             <Route path="/users" element={<Users />} />
