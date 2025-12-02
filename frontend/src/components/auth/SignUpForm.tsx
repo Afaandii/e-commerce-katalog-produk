@@ -34,14 +34,35 @@ export default function SignUpForm() {
       );
 
       if (response.status === 201) {
-        window.location.href = "/";
+        try {
+          const loginResponse = await axios.post(
+            "http://localhost:8000/api/v1/auth/login",
+            {
+              email: email,
+              password: password,
+            }
+          );
+
+          if (loginResponse.data.status === "success") {
+            // 3. Simpan token dari response login
+            const token = loginResponse.data.data.token;
+            sessionStorage.setItem("token", token);
+
+            // 4. Arahkan ke homepage
+            window.location.href = "/";
+          }
+        } catch (loginError: any) {
+          setErrorMessage(
+            "Registrasi berhasil, tetapi gagal login otomatis. Silakan coba login secara manual. " +
+              loginError.message
+          );
+        }
       }
     } catch (error: any) {
       setErrorMessage(
         error.response?.data?.message || "Terjadi kesalahan saat registrasi."
       );
     }
-
     setLoading(false);
   };
 
