@@ -83,8 +83,10 @@ export default function Navigation() {
     const handleCartUpdate = () => {
       fetchCartCount();
     };
+
     // Tambahkan event listener
     window.addEventListener("cartUpdated", handleCartUpdate);
+
     // Bersihkan event listener saat komponen dilepas
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);

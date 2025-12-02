@@ -21,7 +21,6 @@ export default function CardDetailProduct() {
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [cartMessage, setCartMessage] = useState<string | null>(null);
 
   // State untuk data produk
   const [productData, setProductData] = useState<any>(null);
@@ -58,11 +57,20 @@ export default function CardDetailProduct() {
     window.dispatchEvent(event);
   };
 
+  const showNotification = (
+    message: string,
+    type: "success" | "error" = "success"
+  ) => {
+    const event = new CustomEvent("showNotification", {
+      detail: { message, type },
+    });
+    window.dispatchEvent(event);
+  };
+
   const addToCart = async () => {
     if (!productData) return;
 
     setIsAddingToCart(true);
-    setCartMessage(null);
 
     const token = getToken();
     try {
@@ -88,9 +96,7 @@ export default function CardDetailProduct() {
       const data = await response.json();
 
       if (data.status === "success") {
-        setCartMessage(data.message);
-        // Sembunyikan pesan setelah 3 detik
-        setTimeout(() => setCartMessage(null), 3000);
+        showNotification(data.message, "success");
         // TRIGGER EVENT CUSTOM UNTUK MEMPERBARUI BADGE CART
         triggerCartUpdate();
       } else {
@@ -99,9 +105,7 @@ export default function CardDetailProduct() {
         );
       }
     } catch (err: any) {
-      setCartMessage(err.message);
-      // Sembunyikan pesan setelah 3 detik
-      setTimeout(() => setCartMessage(null), 3000);
+      showNotification(err.message, "error");
     } finally {
       setIsAddingToCart(false);
     }
@@ -608,20 +612,6 @@ export default function CardDetailProduct() {
                   >
                     Beli Langsung
                   </button>
-
-                  {/* Tampilkan pesan jika ada */}
-                  {cartMessage && (
-                    <div
-                      className={`p-2 rounded text-sm ${
-                        cartMessage.includes("gagal") ||
-                        cartMessage.includes("error")
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {cartMessage}
-                    </div>
-                  )}
                 </div>
 
                 <div className="pt-3 sm:pt-4 border-t mt-auto">
