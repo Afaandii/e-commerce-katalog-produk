@@ -23,9 +23,9 @@ const navItems: NavItem[] = [
     icon: <FaExchangeAlt className="text-lg" />,
     name: "Transaction",
     subItems: [
-      { name: "Payments", path: "/payments", pro: false },
+      { name: "Payments", path: "/payment", pro: false },
       { name: "Transaksi", path: "/transaksi", pro: false },
-      { name: "Detil Transaksi", path: "/detail-transaction", pro: false },
+      { name: "Detil Transaksi", path: "/detail-transaksi", pro: false },
     ],
   },
   {
@@ -116,6 +116,27 @@ const AppSidebar: React.FC = () => {
           location.pathname.startsWith("/users") ||
           location.pathname.startsWith("/edit-users") ||
           location.pathname.startsWith("/create-users")
+        );
+      }
+      if (path === "/payment") {
+        return (
+          location.pathname.startsWith("/payment") ||
+          location.pathname.startsWith("/edit-payment") ||
+          location.pathname.startsWith("/create-payment")
+        );
+      }
+      if (path === "/transaksi") {
+        return (
+          location.pathname.startsWith("/transaksi") ||
+          location.pathname.startsWith("/edit-transaksi") ||
+          location.pathname.startsWith("/create-transaksi")
+        );
+      }
+      if (path === "/detail-transaksi") {
+        return (
+          location.pathname.startsWith("/detail-transaksi") ||
+          location.pathname.startsWith("/edit-detail-transaksi") ||
+          location.pathname.startsWith("/create-detail-transaksi")
         );
       }
 
