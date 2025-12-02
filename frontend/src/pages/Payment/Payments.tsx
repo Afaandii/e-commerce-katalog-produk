@@ -37,7 +37,6 @@ export default function Payments() {
       if (res.data.status === "success") {
         setpayment(res.data.payments);
       }
-      console.log(res.data.payments);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }

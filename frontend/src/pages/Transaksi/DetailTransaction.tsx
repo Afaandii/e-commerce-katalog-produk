@@ -18,6 +18,10 @@ type DetailTransaction = {
     payment_method: string;
     transaction_status: string;
     paid_at: any;
+    user: {
+      id: number;
+      name: string;
+    };
   };
 };
 
@@ -132,6 +136,9 @@ export default function DetailTransaction() {
                       No
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Pengguna
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                       Kode Transaksi
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -165,6 +172,9 @@ export default function DetailTransaction() {
                   {detailTransaction.map((detTrans, index) => (
                     <tr key={detTrans.id} className="hover:bg-gray-700">
                       <td className="px-4 py-3 text-white">{index + 1}</td>
+                      <td className="px-4 py-3 text-white">
+                        {detTrans.transaction?.user.name}
+                      </td>
                       <td className="px-4 py-3 text-white">
                         {detTrans.transaction?.transaction_code}
                       </td>
