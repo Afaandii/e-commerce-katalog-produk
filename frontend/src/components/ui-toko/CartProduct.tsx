@@ -58,6 +58,14 @@ const CartProduct = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
+  // trigger untuk kurangi item cart
+  const triggerCartUpdate = () => {
+    const event = new CustomEvent("cartUpdated", {
+      detail: { timestamp: Date.now() },
+    });
+    window.dispatchEvent(event);
+  };
+
   // Tampilkan notifikasi (hanya untuk hapus)
   const showNotification = (message: string, type: "success" | "error") => {
     setNotification({ message, type });
@@ -200,6 +208,7 @@ const CartProduct = () => {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Gagal memperbarui quantity");
       }
+      triggerCartUpdate();
     } catch (err: any) {
       // Jika gagal, kembalikan ke nilai lama
       console.error(err);
