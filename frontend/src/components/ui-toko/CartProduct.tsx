@@ -48,12 +48,6 @@ const CartProduct = () => {
     email: "",
   });
 
-  // State untuk notifikasi (hanya untuk hapus)
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
-
   const getToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
@@ -67,9 +61,14 @@ const CartProduct = () => {
   };
 
   // Tampilkan notifikasi (hanya untuk hapus)
-  const showNotification = (message: string, type: "success" | "error") => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 2500);
+  const showNotification = (
+    message: string,
+    type: "success" | "error" = "success"
+  ) => {
+    const event = new CustomEvent("showNotification", {
+      detail: { message, type },
+    });
+    window.dispatchEvent(event);
   };
 
   // Fungsi untuk mengambil data keranjang (dibuat menjadi reusable)
@@ -223,9 +222,6 @@ const CartProduct = () => {
 
   // Hapus satu item + notifikasi
   const removeItem = async (id: string) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus produk ini?"))
-      return;
-
     try {
       const token = getToken();
       const response = await fetch(
@@ -548,7 +544,7 @@ const CartProduct = () => {
     );
   }
 
-  if (error && !notification) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 sm:p-8">
         <div className="max-w-7xl mx-auto">
@@ -665,17 +661,6 @@ const CartProduct = () => {
         <Navigation />
       </div>
 
-      {/* ✅ Notifikasi Toast (hanya untuk hapus) */}
-      {notification && (
-        <div
-          className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-md text-white ${
-            notification.type === "success" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {notification.message}
-        </div>
-      )}
-
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b z-50">
         <div className="flex items-center justify-between p-4">
@@ -686,16 +671,6 @@ const CartProduct = () => {
             <h1 className="text-lg font-semibold">Keranjang</h1>
           </div>
         </div>
-        {/* Notifikasi Mobile */}
-        {notification && (
-          <div
-            className={`absolute top-full left-0 right-0 px-4 py-2 text-center text-white ${
-              notification.type === "success" ? "bg-green-500" : "bg-red-500"
-            }`}
-          >
-            {notification.message}
-          </div>
-        )}
       </div>
 
       <div className="min-h-screen bg-gray-50 lg:mt-26 lg:p-8 pb-32 lg:pb-8">

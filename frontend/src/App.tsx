@@ -36,11 +36,13 @@ import FacebookCallback from "./components/auth/FacebookCallback";
 import Payments from "./pages/Payment/Payments";
 import Transaction from "./pages/Transaksi/Transaction";
 import DetailTransaction from "./pages/Transaksi/DetailTransaction";
+import GlobalNotification from "./components/ui-toko/GlobalNotification";
 
 export default function App() {
   return (
     <>
       <Router>
+        <GlobalNotification />
         <ScrollToTop />
         <Routes>
           {/* Login Form And Register */}
