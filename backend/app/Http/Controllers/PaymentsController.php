@@ -20,7 +20,13 @@ class PaymentsController extends Controller
      */
     public function index()
     {
-        //
+        $payment = Payments::with('transaction')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get data payment successfully!',
+            'payments' => $payment
+        ], 201);
     }
 
     /**

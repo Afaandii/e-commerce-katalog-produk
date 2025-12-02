@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TypeProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,9 @@ Route::group([], function () {
 // management data untuk kelola backend toko
 Route::middleware(['auth:sanctum'])->group(function () {
     // manage payment gateway midtrans
+    Route::get('/v1/get-payment', [PaymentsController::class, 'index']);
+    Route::get('/v1/transaction', [TransactionController::class, 'index']);
+    Route::get('/v1/detail-transaction', [TransactionController::class, 'getDataDetailTransaction']);
     Route::post('/v1/payment', [PaymentsController::class, 'store']);
 
     // manage cart product
