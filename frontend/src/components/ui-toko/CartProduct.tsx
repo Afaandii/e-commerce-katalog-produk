@@ -835,62 +835,62 @@ const CartProduct = () => {
                           <h3 className="text-sm font-medium mb-1 line-clamp-2">
                             {item.name}
                           </h3>
+                        </a>
 
-                          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-0">
-                            <div>
-                              <span className="text-base lg:text-lg font-bold">
-                                {formatPrice(item.price)}
-                              </span>
-                            </div>
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-0">
+                          <div>
+                            <span className="text-base lg:text-lg font-bold">
+                              {formatPrice(item.price)}
+                            </span>
+                          </div>
 
-                            {/* Desktop: Action buttons and quantity */}
-                            <div className="hidden lg:flex items-center gap-4">
-                              <button
-                                onClick={() => removeItem(item.id)}
-                                className="text-gray-400 hover:text-red-500 transition-colors"
-                              >
-                                <MdDeleteOutline className="w-5 h-5" />
-                              </button>
+                          {/* Desktop: Action buttons and quantity */}
+                          <div className="hidden lg:flex items-center gap-4">
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <MdDeleteOutline className="w-5 h-5" />
+                            </button>
 
-                              <div className="flex items-center border rounded-lg">
-                                <button
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                  className="px-3 py-1 hover:bg-gray-100 transition-colors"
-                                >
-                                  −
-                                </button>
-                                <span className="px-4 py-1 border-x min-w-12 text-center">
-                                  {item.quantity}
-                                </span>
-                                <button
-                                  onClick={() => updateQuantity(item.id, 1)}
-                                  className="px-3 py-1 hover:bg-gray-100 transition-colors"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Mobile: Quantity controls only */}
-                            <div className="lg:hidden flex items-center border rounded-lg self-end">
+                            <div className="flex items-center border rounded-lg">
                               <button
                                 onClick={() => updateQuantity(item.id, -1)}
-                                className="px-3 py-1.5 text-green-600 hover:bg-gray-50 transition-colors"
+                                className="px-3 py-1 hover:bg-gray-100 transition-colors"
                               >
                                 −
                               </button>
-                              <span className="px-4 py-1.5 border-x min-w-12 text-center text-sm">
+                              <span className="px-4 py-1 border-x min-w-12 text-center">
                                 {item.quantity}
                               </span>
                               <button
                                 onClick={() => updateQuantity(item.id, 1)}
-                                className="px-3 py-1.5 text-green-600 hover:bg-gray-50 transition-colors"
+                                className="px-3 py-1 hover:bg-gray-100 transition-colors"
                               >
                                 +
                               </button>
                             </div>
                           </div>
-                        </a>
+
+                          {/* Mobile: Quantity controls only */}
+                          <div className="lg:hidden flex items-center border rounded-lg self-end">
+                            <button
+                              onClick={() => updateQuantity(item.id, -1)}
+                              className="px-3 py-1.5 text-green-600 hover:bg-gray-50 transition-colors"
+                            >
+                              −
+                            </button>
+                            <span className="px-4 py-1.5 border-x min-w-12 text-center text-sm">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, 1)}
+                              className="px-3 py-1.5 text-green-600 hover:bg-gray-50 transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
