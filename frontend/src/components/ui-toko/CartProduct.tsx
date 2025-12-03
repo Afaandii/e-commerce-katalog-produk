@@ -885,7 +885,7 @@ const CartProduct = () => {
 
             {/* Desktop Summary Section */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-36">
                 <h2 className="text-xl font-bold mb-4">Ringkasan belanja</h2>
 
                 <div className="flex items-center justify-between mb-6">
