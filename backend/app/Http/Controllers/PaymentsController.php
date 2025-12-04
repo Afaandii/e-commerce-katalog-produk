@@ -153,12 +153,9 @@ class PaymentsController extends Controller
     private function generateTransactionCode()
     {
         $date = now()->format('Ymd');
-        $lastTransaction = Transaction::where('transaction_code', 'LIKE', "TRX-{$date}-%")
-            ->orderBy('transaction_code', 'desc')
-            ->first();
+        $lastTransaction = Transaction::orderBy('id', 'desc')->first();
 
         if ($lastTransaction) {
-            // Ekstrak nomor urut dari kode terakhir
             $lastNumber = (int) substr($lastTransaction->transaction_code, -4);
             $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
