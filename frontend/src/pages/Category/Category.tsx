@@ -20,7 +20,7 @@ export default function Category() {
 
   const fetchCategories = async () => {
     try {
-      const token = getToken()
+      const token = getToken();
 
       const res = await axios.get("http://localhost:8000/api/v1/categories", {
         headers: {
@@ -45,15 +45,18 @@ export default function Category() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus kategori ini?")) return;
 
-    const token = getToken()
+    const token = getToken();
     try {
-      await axios.delete(`http://localhost:8000/api/v1/delete-categories/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:8000/api/v1/delete-categories/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setCategories(prev => prev.filter(cat => cat.id !== id));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
       setSuccessMessage("Kategori berhasil dihapus.");
 
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -67,7 +70,9 @@ export default function Category() {
       {/* Header Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-white">Manage Tabel Kategori</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Manage Tabel Kategori
+          </h1>
 
           <Link
             to="/create-category"
@@ -80,7 +85,9 @@ export default function Category() {
 
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-          <h3 className="text-lg font-semibold text-white">DataTable Kategori</h3>
+          <h3 className="text-lg font-semibold text-white">
+            DataTable Kategori
+          </h3>
         </div>
 
         <div className="p-4">
@@ -99,6 +106,13 @@ export default function Category() {
 
           {loading ? (
             <p className="text-gray-300 text-center">Loading Data...</p>
+          ) : categories.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-lg">Tidak ada data kategori</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Silakan tambah kategori baru menggunakan tombol + di atas
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-600">
@@ -123,7 +137,9 @@ export default function Category() {
                   {categories.map((cat, index) => (
                     <tr key={cat.id} className="hover:bg-gray-700">
                       <td className="px-4 py-3 text-white">{index + 1}</td>
-                      <td className="px-4 py-3 text-white">{cat.category_name}</td>
+                      <td className="px-4 py-3 text-white">
+                        {cat.category_name}
+                      </td>
                       <td className="px-4 py-3 text-gray-300">
                         {cat.description ?? "-"}
                       </td>
@@ -146,7 +162,6 @@ export default function Category() {
                     </tr>
                   ))}
                 </tbody>
-
               </table>
             </div>
           )}

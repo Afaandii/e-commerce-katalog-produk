@@ -13,7 +13,6 @@ export default function Roles() {
   const [roles, setroles] = useState<Roles[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  
 
   const getToken = () => {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -21,7 +20,7 @@ export default function Roles() {
 
   const fetchRoles = async () => {
     try {
-      const token = getToken()
+      const token = getToken();
 
       const res = await axios.get("http://localhost:8000/api/v1/role", {
         headers: {
@@ -46,7 +45,7 @@ export default function Roles() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus role ini?")) return;
 
-    const token = getToken()
+    const token = getToken();
     try {
       await axios.delete(`http://localhost:8000/api/v1/delete-role/${id}`, {
         headers: {
@@ -54,7 +53,7 @@ export default function Roles() {
         },
       });
 
-      setroles(prev => prev.filter(rol => rol.id !== id));
+      setroles((prev) => prev.filter((rol) => rol.id !== id));
       setSuccessMessage("Role berhasil dihapus.");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
@@ -97,6 +96,13 @@ export default function Roles() {
 
           {loading ? (
             <p className="text-gray-300 text-center">Loading Data...</p>
+          ) : roles.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-lg">Tidak ada data role</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Silakan tambah role baru menggunakan tombol + di atas
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-600">
