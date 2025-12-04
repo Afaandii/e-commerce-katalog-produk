@@ -18,15 +18,18 @@ export default function Merk() {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
   };
 
-  const fetchBrand= async () => {
+  const fetchBrand = async () => {
     try {
-      const token = getToken()
+      const token = getToken();
 
-      const res = await axios.get("http://localhost:8000/api/v1/brand-product", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/brand-product",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.data.status === "success") {
         setBrand(res.data.data);
@@ -45,15 +48,18 @@ export default function Merk() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus merk product ini?")) return;
 
-    const token = getToken()
+    const token = getToken();
     try {
-      await axios.delete(`http://localhost:8000/api/v1/delete-brand-product/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:8000/api/v1/delete-brand-product/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setBrand(prev => prev.filter(brand => brand.id !== id));
+      setBrand((prev) => prev.filter((brand) => brand.id !== id));
       setSuccessMessage("Merk berhasil dihapus.");
 
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -99,70 +105,77 @@ export default function Merk() {
           {/* Tabel */}
           {loading ? (
             <p className="text-gray-300 text-center">Loading Data...</p>
+          ) : brand.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-lg">Tidak ada data merk</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Silakan tambah merk baru menggunakan tombol + di atas
+              </p>
+            </div>
           ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-600">
-              <thead className="bg-gray-900">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    No
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Nama Merk
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Deskripsi
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                  >
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-600">
-                {brand.map((brand, index) => (
-                  <tr key={brand.id} className="hover:bg-gray-700">
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
-                      {brand.brand_name}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                      {brand.description}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm">
-                      {/* Tombol Edit */}
-                      <Link
-                        to={`/edit-brand/${brand.id}`}
-                        className="inline-flex items-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium rounded mr-2 transition-colors duration-200"
-                      >
-                        <FaEdit className="text-lg"/>
-                      </Link>
-                      {/* Tombol Hapus */}
-                      <button
-                        onClick={() => handleDelete(brand.id)}
-                        className="inline-flex items-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded transition-colors duration-200"
-                      >
-                        <FaTrash className="text-lg" />
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-600">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                    >
+                      No
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                    >
+                      Nama Merk
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                    >
+                      Deskripsi
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                    >
+                      Aksi
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-gray-800 divide-y divide-gray-600">
+                  {brand.map((brand, index) => (
+                    <tr key={brand.id} className="hover:bg-gray-700">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
+                        {brand.brand_name}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+                        {brand.description}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-sm">
+                        {/* Tombol Edit */}
+                        <Link
+                          to={`/edit-brand/${brand.id}`}
+                          className="inline-flex items-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium rounded mr-2 transition-colors duration-200"
+                        >
+                          <FaEdit className="text-lg" />
+                        </Link>
+                        {/* Tombol Hapus */}
+                        <button
+                          onClick={() => handleDelete(brand.id)}
+                          className="inline-flex items-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded transition-colors duration-200"
+                        >
+                          <FaTrash className="text-lg" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

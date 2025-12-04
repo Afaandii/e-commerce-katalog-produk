@@ -24,11 +24,14 @@ export default function Users() {
     try {
       const token = getToken();
 
-      const res = await axios.get("http://localhost:8000/api/v1/auth/user-all", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/auth/user-all",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.data.status === "Ok") {
         setUsers(res.data.datas);
@@ -49,13 +52,16 @@ export default function Users() {
 
     const token = getToken();
     try {
-      await axios.delete(`http://localhost:8000/api/v1/auth/delete-user/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:8000/api/v1/auth/delete-user/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setUsers(prev => prev.filter(user => user.id !== id));
+      setUsers((prev) => prev.filter((user) => user.id !== id));
       setSuccessMessage("User berhasil dihapus.");
 
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -95,6 +101,13 @@ export default function Users() {
           {/* Tabel */}
           {loading ? (
             <p className="text-gray-300 text-center">Loading Data...</p>
+          ) : users.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-lg">Tidak ada data user</p>
+              <p className="text-gray-400 text-sm mt-2">
+                Silakan tambah user baru menggunakan tombol + di atas
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-600">

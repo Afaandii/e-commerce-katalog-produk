@@ -127,6 +127,16 @@ export default function DetailTransaction() {
 
           {loading ? (
             <p className="text-gray-300 text-center">Loading Data...</p>
+          ) : detailTransaction.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-lg">
+                Tidak ada data detail transaksi
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Silakan tambah detail transaksi baru menggunakan tombol + di
+                atas
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-600">

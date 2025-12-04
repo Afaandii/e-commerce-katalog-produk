@@ -24,14 +24,17 @@ export default function ProdukImage() {
 
   const fetchProductImage = async () => {
     try {
-      const token = getToken()
-      const res = await axios.get("http://localhost:8000/api/v1/product-image", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token = getToken();
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/product-image",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      console.log(res.data)
+      console.log(res.data);
       if (res.data.success) {
         setProductImage(res.data.data);
       }
@@ -49,15 +52,18 @@ export default function ProdukImage() {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Anda yakin ingin menghapus produk image ini?")) return;
 
-    const token = getToken()
+    const token = getToken();
     try {
-      await axios.delete(`http://localhost:8000/api/v1/delete-product-image/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:8000/api/v1/delete-product-image/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setProductImage(prev => prev.filter(brand => brand.id !== id));
+      setProductImage((prev) => prev.filter((brand) => brand.id !== id));
       setSuccessMessage("Product Image berhasil dihapus.");
 
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -70,7 +76,9 @@ export default function ProdukImage() {
     <>
       <section className="mb-6">
         <div className="flex items-center justify-between p-3 rounded-t-lg">
-          <h1 className="text-2xl font-bold text-white">Manage Tabel Product Image</h1>
+          <h1 className="text-2xl font-bold text-white">
+            Manage Tabel Product Image
+          </h1>
           <Link
             to="/create-image-product"
             className="inline-flex items-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200"
@@ -83,7 +91,9 @@ export default function ProdukImage() {
       {/* Card Container */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-          <h3 className="text-lg font-semibold text-white">DataTable Product Image</h3>
+          <h3 className="text-lg font-semibold text-white">
+            DataTable Product Image
+          </h3>
         </div>
 
         {/* Card Body */}
@@ -125,12 +135,12 @@ export default function ProdukImage() {
                 {loading ? (
                   <tr>
                     <td colSpan={4} className="text-center py-4 text-white">
-                      Loading...
+                      Loading data...
                     </td>
                   </tr>
                 ) : productImage.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-4 text-gray-300">
+                    <td colSpan={4} className="text-center py-4 text-red-500">
                       Tidak ada data product image
                     </td>
                   </tr>
