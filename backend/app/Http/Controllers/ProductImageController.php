@@ -48,7 +48,7 @@ class ProductImageController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:product,id',
-            'image' => 'required|image|max:2048'
+            'image' => 'required|image|max:8048'
         ]);
 
         $file = $request->file('image');
@@ -113,7 +113,7 @@ class ProductImageController extends Controller
 
         $request->validate([
             'product_id' => 'nullable|exists:product,id',
-            'image'      => 'nullable|image|max:2048'
+            'image'      => 'nullable|image|max:8048'
         ]);
 
         $supabase = app(SupabaseStorage::class);
