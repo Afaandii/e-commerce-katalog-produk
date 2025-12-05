@@ -32,7 +32,6 @@ export default function CardDetailProduct() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("detail");
   const [mainImage, setMainImage] = useState<string>("");
-  const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullTitle, setShowFullTitle] = useState(false);
   const [userData, setUserData] = useState({
     name: "",
@@ -479,51 +478,59 @@ export default function CardDetailProduct() {
                     </button>
                   </div>
 
+                  {/* Tab Spesifikasi Produk */}
                   {activeTab === "detail" && (
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex justify-between text-xs sm:text-base">
-                        <span className="text-gray-600">Kondisi:</span>
-                        <span className="font-semibold">{condition}</span>
+                    <div className="space-y-4 sm:space-y-5">
+                      {/* Informasi Dasar (Kondisi, Min Pemesanan, Etalase) */}
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex justify-between text-xs sm:text-base">
+                          <span className="text-gray-600">Kondisi:</span>
+                          <span className="font-semibold">{condition}</span>
+                        </div>
+                        <div className="flex justify-between text-xs sm:text-base">
+                          <span className="text-gray-600">Min. Pemesanan:</span>
+                          <span className="font-semibold">{minOrder} Buah</span>
+                        </div>
+                        <div className="flex justify-between text-xs sm:text-base">
+                          <span className="text-gray-600">Etalase:</span>
+                          <span className="font-semibold text-green-600">
+                            {category}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between text-xs sm:text-base">
-                        <span className="text-gray-600">Min. Pemesanan:</span>
-                        <span className="font-semibold">{minOrder} Buah</span>
-                      </div>
-                      <div className="flex justify-between text-xs sm:text-base">
-                        <span className="text-gray-600">Etalase:</span>
-                        <span className="font-semibold text-green-600">
-                          {category}
-                        </span>
+
+                      {/* Spesifikasi Produk data */}
+                      <div className="pt-3 sm:pt-4 border-t">
+                        <div className="text-xs sm:text-base text-gray-700">
+                          {features && features.length > 0 ? (
+                            <ul className="list-disc pl-5 space-y-1">
+                              {features.map(
+                                (feature: string, index: number) => (
+                                  <li key={index}>{feature}</li>
+                                )
+                              )}
+                            </ul>
+                          ) : (
+                            "Tidak ada spesifikasi produk."
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
-                </div>
 
-                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t">
-                  <div
-                    className={`text-gray-700 text-xs sm:text-base ${
-                      !showFullDescription ? "line-clamp-4" : ""
-                    }`}
-                  >
-                    <p className="mb-2 sm:mb-3">{description}</p>
-                    {features.length > 0 && (
-                      <div className="space-y-1 sm:space-y-2">
-                        {features.map((feature: string, index: number) => (
-                          <p key={index} className="text-xs sm:text-sm">
-                            • {feature}
-                          </p>
-                        ))}
+                  {/* Tab Informasi Produk */}
+                  {activeTab === "info" && (
+                    <div className="space-y-4 sm:space-y-5">
+                      {/* Informasi Produk data */}
+                      <div className="text-xs sm:text-base text-gray-700">
+                        {description ? (
+                          <p>{description}</p>
+                        ) : (
+                          "Tidak ada informasi produk."
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setShowFullDescription(!showFullDescription)}
-                    className="text-green-600 font-medium text-xs sm:text-sm mt-2 hover:underline"
-                  >
-                    {showFullDescription
-                      ? "Lihat Lebih Sedikit"
-                      : "Lihat Selengkapnya"}
-                  </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
