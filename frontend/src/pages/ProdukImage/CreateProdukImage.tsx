@@ -138,6 +138,9 @@ export default function CreateProdukImage() {
               </label>
               <Select
                 options={productOptions}
+                defaultValue={
+                  selectedProductId ? selectedProductId.toString() : ""
+                }
                 placeholder="Pilih Product"
                 onChange={handleSelectChangeProductImage}
                 id="product_id"

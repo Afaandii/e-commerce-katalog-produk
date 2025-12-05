@@ -74,6 +74,12 @@ export default function Produk() {
     }
   };
 
+  const truncateText = (text: string | null, maxLength: number = 100) => {
+    if (!text) return "-";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   return (
     <>
       <section className="mb-6">
@@ -224,10 +230,10 @@ export default function Produk() {
                         {product.ratings}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                        {product.spesification_product}
+                        {truncateText(product.spesification_product)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                        {product.information_product}
+                        {truncateText(product.information_product)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
                         {/* Tombol Edit */}
