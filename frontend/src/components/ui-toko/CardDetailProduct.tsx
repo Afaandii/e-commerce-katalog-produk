@@ -9,12 +9,13 @@ import {
 } from "react-icons/fa";
 import Navigation from "./Navigation";
 import Footer from "./Footer";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function CardDetailProduct() {
   // All hooks must be at the top, in the same order on every render
   const thumbnailRef = useRef<HTMLDivElement>(null);
   const { nama, id } = useParams<{ nama: string; id: string }>();
+  const navigate = useNavigate();
   const [showPrevButton, setShowPrevButton] = useState(false);
   const [showNextButton, setShowNextButton] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
@@ -295,6 +296,12 @@ export default function CardDetailProduct() {
   const handleBuyNow = async () => {
     const token = getToken();
 
+    if (!token) {
+      const currentUrl = window.location.pathname;
+      navigate(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+
     if (!productData) return;
 
     try {
@@ -317,7 +324,7 @@ export default function CardDetailProduct() {
       const data = await response.json();
 
       if (!data.token) {
-        alert("Gagal membuat invoice Midtrans");
+        alert("Gagal membuat invoice Midtrans, token tidak ada!");
         return;
       }
 
@@ -335,7 +342,7 @@ export default function CardDetailProduct() {
       });
     } catch (err) {
       console.error(err);
-      alert("Terjadi error saat memulai pembayaran");
+      alert("Ups! kesalahan saat memulai pembayaran");
     }
   };
 

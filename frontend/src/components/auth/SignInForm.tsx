@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { FaEyeSlash, FaEye, FaGoogle, FaFacebook } from "react-icons/fa";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -15,6 +15,10 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate(); // Tambahkan hook useNavigate
+  const [searchParams] = useSearchParams(); // Tambahkan hook useSearchParams
+  const redirectUrl = searchParams.get("redirect");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +50,14 @@ export default function SignInForm() {
           localStorage.removeItem("user");
         }
 
-        if (user.role_id === 1) {
-          window.location.href = "/dashboard";
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
         } else {
-          window.location.href = "/";
+          if (user.role_id === 1) {
+            window.location.href = "/dashboard";
+          } else {
+            window.location.href = "/";
+          }
         }
       }
     } catch (err: any) {
@@ -58,6 +66,12 @@ export default function SignInForm() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (redirectUrl) {
+      sessionStorage.setItem("redirectUrl", redirectUrl);
+    }
+  }, [redirectUrl]);
 
   return (
     <div className="flex flex-col flex-1 w-full">
@@ -81,20 +95,26 @@ export default function SignInForm() {
           <div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
               <button
-                onClick={() =>
-                  (window.location.href =
-                    "http://localhost:8000/auth/google/redirect")
-                }
+                onClick={() => {
+                  if (redirectUrl) {
+                    sessionStorage.setItem("redirectUrl", redirectUrl);
+                  }
+                  window.location.href =
+                    "http://localhost:8000/auth/google/redirect";
+                }}
                 className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
                 <FaGoogle className="fill-current size-5" />
                 Sign in with Google
               </button>
               <button
-                onClick={() =>
-                  (window.location.href =
-                    "http://localhost:8000/auth/facebook/redirect")
-                }
+                onClick={() => {
+                  if (redirectUrl) {
+                    sessionStorage.setItem("redirectUrl", redirectUrl);
+                  }
+                  window.location.href =
+                    "http://localhost:8000/auth/facebook/redirect";
+                }}
                 className="inline-flex items-center justify-center gap-1 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
               >
                 <FaFacebook className="fill-current size-5" />
