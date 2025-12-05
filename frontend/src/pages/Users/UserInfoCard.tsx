@@ -10,11 +10,13 @@ import {
   FaChevronLeft,
   FaClipboard,
 } from "react-icons/fa";
+import { BsBoxArrowLeft } from "react-icons/bs";
 import axios from "axios";
 import FileInput from "../../components/form/input/FileInput";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [isMobile, setIsMobile] = useState(false);
 
   const [userData, setUserData] = useState({
     name: "",
@@ -36,6 +38,16 @@ export default function UserInfoCard() {
     password: "",
     profile_image: null as File | null,
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -303,6 +315,21 @@ export default function UserInfoCard() {
                 </div>
                 <FaChevronRight className="w-5 h-5 text-gray-400" />
               </button>
+
+              {/* Logout Button (Hanya Mobile) */}
+              {isMobile && (
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    sessionStorage.removeItem("token");
+                    window.location.href = "/";
+                  }}
+                  className="w-full flex items-center justify-center px-6 lg:px-8 py-5 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-100 dark:border-gray-700"
+                >
+                  <BsBoxArrowLeft className="w-5 h-5 text-red-600 mr-2" />
+                  <span className="font-medium text-red-600">Logout</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
