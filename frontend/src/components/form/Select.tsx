@@ -2,16 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 interface Option {
-  value: string;
+  value: string | number;
   label: string;
 }
 
 interface SelectProps {
   options: Option[];
   placeholder?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | number) => void;
   className?: string;
-  defaultValue?: string;
+  defaultValue?: string | number | null;
   id?: string;
   name?: string;
 }
@@ -26,9 +26,14 @@ const Select = ({
   name,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<string | number | null>(
+    defaultValue
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const prevDefaultValue = useRef<string | undefined>(undefined);
+  const prevDefaultValue = useRef<string | number | null | undefined>(
+    undefined
+  );
+
   useEffect(() => {
     if (
       defaultValue !== undefined &&
@@ -41,12 +46,16 @@ const Select = ({
   }, [defaultValue, selectedValue]);
 
   // Cari label dari value yang dipilih
-  const selectedLabel = options.find(opt => opt.value === selectedValue)?.label || placeholder;
+  const selectedLabel =
+    options.find((opt) => opt.value === selectedValue)?.label || placeholder;
 
   // Tutup dropdown saat klik di luar
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -54,7 +63,7 @@ const Select = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = (value: string) => {
+  const handleSelect = (value: string | number) => {
     setSelectedValue(value);
     onChange(value);
     setIsOpen(false);
@@ -67,8 +76,8 @@ const Select = ({
         <input
           type="hidden"
           name={name}
-          value={selectedValue}
-          id={id} 
+          value={selectedValue?.toString() || ""}
+          id={id}
         />
       )}
       {/* Tombol Select */}
@@ -95,7 +104,7 @@ const Select = ({
         <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {options.map((option) => (
             <div
-              key={option.value}
+              key={option.value.toString()}
               className="px-4 py-2 text-white hover:bg-gray-700 cursor-pointer transition-colors"
               onClick={() => handleSelect(option.value)}
             >
